@@ -1,0 +1,163 @@
+﻿@model IEnumerable<QuanLyKhachSan.Models.LichDatPhongViewModel>
+
+@{
+    ViewData["Title"] = "Lịch đặt phòng";
+
+    var homNay = DateTime.Today;
+    var ngayBatDau = new DateTime(homNay.Year, homNay.Month, 1);
+    var ngayKetThuc = ngayBatDau.AddMonths(1).AddDays(-1);
+    var soNgay = DateTime.DaysInMonth(homNay.Year, homNay.Month);
+}
+
+<style>
+    .calendar-wrapper {
+        overflow-x: auto;
+        background: white;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+    }
+
+    .calendar-table {
+        min-width: 1000px;
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .calendar-table th,
+        .calendar-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            text-align: center;
+            min-width: 38px;
+        }
+
+        .calendar-table th {
+            background: #f1f5f9;
+            font-size: 13px;
+        }
+
+    .room-name {
+        min-width: 110px !important;
+        text-align: left !important;
+        font-weight: 600;
+        background: #f8fafc;
+    }
+
+    .booking-bar {
+        display: block;
+        background: #2563a6;
+        color: white;
+        border-radius: 5px;
+        padding: 5px;
+        font-size: 11px;
+        text-align: left;
+        min-width: 90px;
+        margin: 2px 0;
+        line-height: 1.5;
+    }
+
+        .booking-bar.checked-in {
+            background: #198754;
+        }
+
+    .today {
+        background: #eaf2fc !important;
+    }
+
+    .empty-cell {
+        color: #cbd5e1;
+    }
+</style>
+
+<h2 class="mb-2">Lịch đặt phòng</h2>
+<p class="text-muted">
+    Theo dõi lịch đặt phòng của khách hàng theo từng ngày trong tháng.
+</p>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+        <h5 class="mb-0">
+            Tháng @homNay.Month / @homNay.Year
+        </h5>
+    </div>
+
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            Danh sách đặt phòng
+        </a>
+        <a asp-action="Create" class="btn btn-primary">
+            Đặt phòng mới
+        </a>
+    </div>
+</div>
+
+<div class="mb-3">
+    <span class="badge bg-primary">Đã đặt</span>
+    <span class="badge bg-success">Đang ở</span>
+</div>
+
+<div class="calendar-wrapper">
+    <table class="calendar-table">
+        <thead>
+            <tr>
+                <th class="room-name">Phòng</th>
+
+                @for (int ngay = 1; ngay <= soNgay; ngay++)
+                {
+                    var ngayHienTai = new DateTime(homNay.Year, homNay.Month, ngay);
+
+                    <th class="@(ngayHienTai == homNay ? "today" : "")">
+                        @ngay
+                    </th>
+                }
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var phong in Model)
+            {
+                <tr>
+                    <td class="room-name">
+                        Phòng @phong.SoPhong
+                        <br />
+                        <small class="text-muted">@phong.TenLoaiPhong</small>
+                    </td>
+
+                    @for (int ngay = 1; ngay <= soNgay; ngay++)
+                    {
+                        var ngayHienTai = new DateTime(homNay.Year, homNay.Month, ngay);
+
+                        var donDat = phong.DanhSachDatPhong
+                            .Where(d => ngayHienTai >= d.NgayDen.Date
+                                     && ngayHienTai < d.NgayDi.Date)
+                            .ToList();
+
+                        <td class="@(ngayHienTai == homNay ? "today" : "")">
+                            @if (donDat.Any())
+                            {
+                                foreach (var don in donDat)
+                                {
+                                    <div class="booking-bar @(don.TrangThai == "Đã check-in" ? "checked-in" : "")"
+                                         title="Khách: @don.TenKhachHang | Nhận: @don.NgayDen.ToString("dd/MM/yyyy") | Trả: @don.NgayDi.ToString("dd/MM/yyyy")">
+                                        @don.TenKhachHang
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <span class="empty-cell">-</span>
+                            }
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-3 text-muted">
+    <small>
+        Lưu ý: Ngày trả phòng không được tính là ngày khách còn sử dụng phòng.
+        Nhấn hoặc di chuột vào lịch đặt để xem thông tin chi tiết.
+    </small>
+</div>

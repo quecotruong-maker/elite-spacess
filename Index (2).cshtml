@@ -1,0 +1,45 @@
+﻿@{
+    ViewData["Title"] = "Kiểm tra gửi Email";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm mx-auto" style="max-width: 600px;">
+        <div class="card-header">
+            <h4 class="mb-0">Kiểm tra gửi Email</h4>
+        </div>
+
+        <div class="card-body">
+            <p>
+                Nhập địa chỉ email nhận để kiểm tra hệ thống
+                gửi email của khách sạn.
+            </p>
+
+            <form asp-controller="EmailTest"
+                  asp-action="GuiEmail"
+                  method="post">
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Email người nhận
+                    </label>
+
+                    <input type="email"
+                           name="emailNhan"
+                           class="form-control"
+                           placeholder="example@gmail.com"
+                           required />
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Gửi email thử nghiệm
+                </button>
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="btn btn-secondary">
+                    Quay lại
+                </a>
+            </form>
+        </div>
+    </div>
+</div>

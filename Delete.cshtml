@@ -1,0 +1,37 @@
+@model QuanLyKhachSan.Models.DatPhong
+
+@{
+    ViewData["Title"] = "Xóa đơn đặt phòng";
+    var soDem = Math.Max(1, (Model.NgayDi.Date - Model.NgayDen.Date).Days);
+}
+
+<h1>Xóa đơn đặt phòng</h1>
+
+<h3 class="text-danger">Bạn có chắc muốn xóa đơn này không?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Khách hàng</dt>
+        <dd class="col-sm-9">@Model.KhachHang?.HoTen (@Model.KhachHang?.SoDienThoai)</dd>
+
+        <dt class="col-sm-3">Phòng</dt>
+        <dd class="col-sm-9">@Model.Phong?.SoPhong</dd>
+
+        <dt class="col-sm-3">Ngày đến</dt>
+        <dd class="col-sm-9">@Model.NgayDen.ToString("dd/MM/yyyy")</dd>
+
+        <dt class="col-sm-3">Ngày đi</dt>
+        <dd class="col-sm-9">@Model.NgayDi.ToString("dd/MM/yyyy") (@soDem đêm)</dd>
+
+        <dt class="col-sm-3">Trạng thái</dt>
+        <dd class="col-sm-9">@Model.TrangThai</dd>
+
+        <dt class="col-sm-3">Ghi chú</dt>
+        <dd class="col-sm-9">@Model.GhiChu</dd>
+    </dl>
+
+    <form asp-action="Delete" asp-route-id="@Model.MaDatPhong" method="post">
+        <input type="submit" value="Xóa" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    </form>
+</div>

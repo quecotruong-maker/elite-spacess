@@ -1,0 +1,30 @@
+@model QuanLyKhachSan.Models.Phong
+
+@{
+    ViewData["Title"] = "Xóa phòng";
+}
+
+<h1>Xóa phòng</h1>
+
+<h3 class="text-danger">Bạn có chắc muốn xóa phòng này không?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Số phòng</dt>
+        <dd class="col-sm-9">@Model.SoPhong</dd>
+
+        <dt class="col-sm-3">Loại phòng</dt>
+        <dd class="col-sm-9">@Model.LoaiPhong?.TenLoai</dd>
+
+        <dt class="col-sm-3">Giá một đêm</dt>
+        <dd class="col-sm-9">@((Model.LoaiPhong?.GiaMotDem ?? 0).ToString("N0")) đ</dd>
+
+        <dt class="col-sm-3">Trạng thái</dt>
+        <dd class="col-sm-9">@Model.TrangThai</dd>
+    </dl>
+
+    <form asp-action="Delete" asp-route-id="@Model.MaPhong" method="post">
+        <input type="submit" value="Xóa" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    </form>
+</div>

@@ -1,0 +1,1703 @@
+﻿@using QuanLyKhachSan.Models
+@using System.Collections.Generic
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "Tổng quan";
+
+    var laAdmin = User.IsInRole("Admin");
+
+    var tongPhong = ViewBag.TongPhong ?? 0;
+    var phongTrong = ViewBag.PhongTrong ?? 0;
+    var phongDangO = ViewBag.PhongDangO ?? 0;
+    var phongDangDon = ViewBag.PhongDangDon ?? 0;
+    var phongBaoTri = ViewBag.PhongBaoTri ?? 0;
+
+    var datPhongHomNay = ViewBag.DatPhongHomNay ?? 0;
+    var khachDangLuuTru = ViewBag.KhachDangLuuTru ?? 0;
+    var tyLeLapDay = ViewBag.TyLeLapDay ?? 0;
+
+    var sapDen = ViewBag.SapDen ?? 0;
+    var sapDi = ViewBag.SapDi ?? 0;
+
+    var lichDatPhong = ViewBag.LichDatPhong as List<LichDatPhongViewModel>
+        ?? new List<LichDatPhongViewModel>();
+
+    var homNay = DateTime.Today;
+    var ngayDauThang = new DateTime(homNay.Year, homNay.Month, 1);
+    var soNgayTrongThang = DateTime.DaysInMonth(homNay.Year, homNay.Month);
+
+    var ngayTrongLich = Enumerable.Range(0, soNgayTrongThang)
+        .Select(i => ngayDauThang.AddDays(i))
+        .ToList();
+
+    var nhomLoaiPhong = lichDatPhong
+        .GroupBy(p => string.IsNullOrWhiteSpace(p.TenLoaiPhong)
+            ? "Chưa phân loại"
+            : p.TenLoaiPhong)
+        .OrderBy(g => g.Key)
+        .ToList();
+
+    var viTriHomNayCss = (
+        (homNay.Day - 1 + 0.5) / soNgayTrongThang * 100
+    ).ToString(CultureInfo.InvariantCulture);
+
+    var phanTramLapDay = Math.Clamp(
+        Convert.ToDouble(tyLeLapDay), 0, 100
+    );
+}
+
+<style>
+    /* =========================================
+           PREMIUM HOTEL DASHBOARD
+        ========================================= */
+
+    .admin-dashboard {
+        --dash-ink: #15334b;
+        --dash-muted: #8294a8;
+        --dash-primary: #13b8ad;
+        --dash-blue: #3978d5;
+        --dash-border: #e8eef4;
+        --dash-surface: #ffffff;
+        color: var(--dash-ink);
+        padding-bottom: 20px;
+    }
+
+        .admin-dashboard * {
+            box-sizing: border-box;
+        }
+
+        .admin-dashboard a {
+            text-decoration: none;
+        }
+
+    /* Hiệu ứng xuất hiện */
+
+    @@keyframes dashFadeUp {
+        from {
+            opacity: 0;
+            transform: translateY(18px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes dashFadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes dashFloat {
+        0%, 100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-9px);
+        }
+    }
+
+    @@keyframes dashShimmer {
+        0% {
+            transform: translateX(-120%) rotate(18deg);
+        }
+
+        100% {
+            transform: translateX(220%) rotate(18deg);
+        }
+    }
+
+    .dash-animate {
+        animation: dashFadeUp .65s cubic-bezier(.2,.75,.25,1) both;
+    }
+
+    .dash-delay-1 {
+        animation-delay: .08s;
+    }
+
+    .dash-delay-2 {
+        animation-delay: .16s;
+    }
+
+    .dash-delay-3 {
+        animation-delay: .24s;
+    }
+
+    .dash-delay-4 {
+        animation-delay: .32s;
+    }
+
+    .dash-delay-5 {
+        animation-delay: .40s;
+    }
+
+    /* BANNER */
+
+    .dashboard-welcome {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        min-height: 245px;
+        padding: 36px 40px;
+        margin-bottom: 30px;
+        border-radius: 24px;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 25px;
+        background: radial-gradient(circle at 82% 20%, rgba(89,230,218,.28), transparent 28%), radial-gradient(circle at 65% 110%, rgba(71,139,226,.35), transparent 38%), linear-gradient(115deg, #103b51 0%, #126b76 48%, #287e9a 100%);
+        box-shadow: 0 18px 45px rgba(19,91,111,.19);
+    }
+
+        .dashboard-welcome::before {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            width: 330px;
+            height: 330px;
+            right: 10%;
+            top: -190px;
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 50%;
+            box-shadow: 0 0 0 35px rgba(255,255,255,.035), 0 0 0 75px rgba(255,255,255,.025);
+        }
+
+        .dashboard-welcome::after {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            width: 180px;
+            height: 340px;
+            top: -40px;
+            left: 42%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.07), transparent);
+            transform: rotate(18deg);
+            animation: dashShimmer 8s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+    .welcome-content {
+        position: relative;
+        z-index: 1;
+        max-width: 680px;
+    }
+
+    .welcome-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        color: #a9eee7;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 2.5px;
+        margin-bottom: 17px;
+    }
+
+        .welcome-label::before {
+            content: "";
+            width: 23px;
+            height: 2px;
+            border-radius: 5px;
+            background: #62e2d4;
+        }
+
+    .dashboard-welcome h2 {
+        color: white;
+        font-size: clamp(25px, 3vw, 34px);
+        font-weight: 800;
+        letter-spacing: -.8px;
+        margin: 0 0 12px;
+    }
+
+    .dashboard-welcome p {
+        color: rgba(255,255,255,.78);
+        font-size: 14px;
+        line-height: 1.8;
+        margin: 0 0 23px;
+    }
+
+    .welcome-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 19px;
+        border-radius: 11px;
+        background: white;
+        color: #146d78;
+        font-size: 13px;
+        font-weight: 750;
+        box-shadow: 0 7px 18px rgba(0,0,0,.12);
+        transition: transform .25s ease, box-shadow .25s ease, background .25s ease;
+    }
+
+        .welcome-button:hover {
+            color: #105965;
+            background: #eafffc;
+            transform: translateY(-3px);
+            box-shadow: 0 12px 24px rgba(0,0,0,.18);
+        }
+
+        .welcome-button span {
+            font-size: 18px;
+            line-height: 1;
+        }
+
+    .welcome-date {
+        position: relative;
+        z-index: 1;
+        min-width: 190px;
+        padding: 19px 21px;
+        border: 1px solid rgba(255,255,255,.23);
+        border-radius: 17px;
+        background: rgba(255,255,255,.12);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+    }
+
+    .welcome-date-label {
+        color: rgba(255,255,255,.68);
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        margin-bottom: 8px;
+    }
+
+    .welcome-date strong {
+        display: block;
+        color: white;
+        font-size: 15px;
+        font-weight: 750;
+        line-height: 1.5;
+    }
+
+    .welcome-date .date-day {
+        display: block;
+        color: #a9eee7;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    /* TIÊU ĐỀ KHU VỰC */
+
+    .dashboard-section-heading {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 15px;
+        margin: 0 0 17px;
+    }
+
+        .dashboard-section-heading h3 {
+            color: #173c56;
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -.4px;
+            margin: 0;
+        }
+
+        .dashboard-section-heading p {
+            color: var(--dash-muted);
+            font-size: 12px;
+            margin: 5px 0 0;
+        }
+
+    .section-kicker {
+        color: #17a99f;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 1.7px;
+        margin-bottom: 6px;
+    }
+
+    /* THẺ THỐNG KÊ */
+
+    .stat-card {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        height: 100%;
+        min-height: 190px;
+        padding: 21px;
+        border: 1px solid var(--dash-border);
+        border-radius: 18px;
+        background: white;
+        box-shadow: 0 5px 18px rgba(24,58,83,.035);
+        transition: transform .3s cubic-bezier(.2,.75,.25,1), box-shadow .3s ease, border-color .3s ease;
+    }
+
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            z-index: -1;
+            width: 125px;
+            height: 125px;
+            right: -55px;
+            bottom: -65px;
+            border-radius: 50%;
+            background: var(--stat-glow, rgba(19,184,173,.07));
+            transition: transform .4s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(19,184,173,.25);
+            box-shadow: 0 16px 34px rgba(24,58,83,.10);
+        }
+
+            .stat-card:hover::after {
+                transform: scale(1.7);
+            }
+
+    .stat-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
+    .stat-icon {
+        width: 47px;
+        height: 47px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 15px;
+        font-size: 22px;
+        transition: transform .3s ease;
+    }
+
+    .stat-card:hover .stat-icon {
+        transform: rotate(-8deg) scale(1.08);
+    }
+
+    .stat-blue {
+        color: #3978d5;
+        background: #eaf2ff;
+        --stat-glow: rgba(57,120,213,.10);
+    }
+
+    .stat-green {
+        color: #0eaa88;
+        background: #e5f8f2;
+        --stat-glow: rgba(14,170,136,.10);
+    }
+
+    .stat-orange {
+        color: #e99a3b;
+        background: #fff3e5;
+        --stat-glow: rgba(233,154,59,.12);
+    }
+
+    .stat-purple {
+        color: #8764db;
+        background: #f1ebff;
+        --stat-glow: rgba(135,100,219,.11);
+    }
+
+    .stat-tag {
+        color: #8a9bad;
+        font-size: 11px;
+        font-weight: 650;
+        padding: 6px 9px;
+        border-radius: 20px;
+        background: #f5f8fb;
+    }
+
+    .stat-label {
+        color: #8293a6;
+        font-size: 12px;
+        font-weight: 600;
+        margin-top: 17px;
+    }
+
+    .stat-number {
+        color: #173c56;
+        font-size: 32px;
+        font-weight: 850;
+        letter-spacing: -1px;
+        line-height: 1.2;
+        margin-top: 4px;
+    }
+
+    .stat-note {
+        color: #9aa8b7;
+        font-size: 11px;
+        margin-top: 7px;
+    }
+
+    .stat-progress {
+        height: 6px;
+        overflow: hidden;
+        border-radius: 20px;
+        background: #edf2f7;
+        margin-top: 13px;
+    }
+
+        .stat-progress span {
+            display: block;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #13b8ad, #55d5c3);
+            transition: width 1s cubic-bezier(.2,.75,.25,1);
+        }
+
+    /* PANEL */
+
+    .dashboard-panel {
+        height: 100%;
+        padding: 23px;
+        border: 1px solid var(--dash-border);
+        border-radius: 19px;
+        background: white;
+        box-shadow: 0 5px 18px rgba(24,58,83,.035);
+        transition: box-shadow .3s ease, transform .3s ease;
+    }
+
+        .dashboard-panel:hover {
+            box-shadow: 0 12px 28px rgba(24,58,83,.065);
+        }
+
+    .dashboard-panel-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 19px;
+    }
+
+    .panel-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+    }
+
+    .panel-heading-icon {
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        color: #119e98;
+        background: #e7f8f5;
+        font-size: 17px;
+    }
+
+    .dashboard-panel-heading h5 {
+        color: #173c56;
+        font-size: 15px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .dashboard-panel-heading a {
+        color: #2685b5;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+        transition: color .2s ease;
+    }
+
+        .dashboard-panel-heading a:hover {
+            color: #0eaaa0;
+        }
+
+    .panel-subtitle {
+        color: #94a3b3;
+        font-size: 11px;
+        margin-top: 4px;
+    }
+
+    /* TÌNH TRẠNG PHÒNG */
+
+    .operation-item {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 13px 0;
+        border-bottom: 1px solid #eff3f6;
+    }
+
+        .operation-item:last-child {
+            border-bottom: 0;
+            padding-bottom: 2px;
+        }
+
+    .operation-icon {
+        width: 41px;
+        height: 41px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        border-radius: 13px;
+        color: #159e92;
+        background: #e9f8f5;
+        font-size: 18px;
+    }
+
+        .operation-icon.green {
+            color: #13a77e;
+            background: #e6f8f1;
+        }
+
+        .operation-icon.orange {
+            color: #e59a3a;
+            background: #fff4e7;
+        }
+
+        .operation-icon.red {
+            color: #dc6470;
+            background: #fff0f1;
+        }
+
+    .operation-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+        .operation-info strong {
+            display: block;
+            color: #29465e;
+            font-size: 13px;
+            font-weight: 750;
+        }
+
+        .operation-info span {
+            display: block;
+            color: #98a6b4;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+    .operation-number {
+        color: #173c56;
+        font-size: 21px;
+        font-weight: 850;
+        min-width: 25px;
+        text-align: right;
+    }
+
+    /* LỊCH HOẠT ĐỘNG */
+
+    .activity-summary {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+
+    .activity-box {
+        position: relative;
+        overflow: hidden;
+        padding: 17px;
+        border-radius: 15px;
+        background: #f5f9fc;
+        border: 1px solid #edf2f6;
+        transition: transform .25s ease, background .25s ease;
+    }
+
+        .activity-box:hover {
+            transform: translateY(-3px);
+            background: #f0faf9;
+        }
+
+        .activity-box.arrival {
+            background: linear-gradient(140deg, #eff9ff, #f7fbff);
+        }
+
+        .activity-box.departure {
+            background: linear-gradient(140deg, #fff5ef, #fffaf6);
+        }
+
+    .activity-box-label {
+        color: #8295a7;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .activity-box-number {
+        color: #1b526b;
+        font-size: 30px;
+        font-weight: 850;
+        line-height: 1.2;
+        margin-top: 8px;
+    }
+
+    .activity-box.departure .activity-box-number {
+        color: #d77d52;
+    }
+
+    .activity-box-icon {
+        position: absolute;
+        right: 15px;
+        top: 14px;
+        font-size: 22px;
+        opacity: .55;
+    }
+
+    .occupancy-info {
+        margin-top: 22px;
+    }
+
+    .occupancy-info-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        color: #587086;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .occupancy-track {
+        height: 9px;
+        overflow: hidden;
+        border-radius: 20px;
+        background: #edf2f6;
+        margin-top: 11px;
+    }
+
+    .occupancy-progress {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, #13b8ad, #58d4bd);
+        transition: width 1.2s cubic-bezier(.2,.75,.25,1);
+    }
+
+    .dashboard-muted {
+        color: #91a0af;
+        font-size: 11px;
+        line-height: 1.7;
+    }
+
+    /* LỊCH ĐẶT PHÒNG */
+
+    .calendar-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 15px;
+    }
+
+    .calendar-search {
+        flex: 1;
+        min-width: 190px;
+        position: relative;
+    }
+
+        .calendar-search input,
+        .calendar-filter select {
+            width: 100%;
+            height: 39px;
+            padding: 0 12px;
+            border: 1px solid #e2eaf0;
+            border-radius: 10px;
+            outline: none;
+            color: #36536b;
+            background: #fbfdfe;
+            font-size: 12px;
+            transition: border-color .2s ease, box-shadow .2s ease;
+        }
+
+            .calendar-search input:focus,
+            .calendar-filter select:focus {
+                border-color: #48bcb3;
+                box-shadow: 0 0 0 3px rgba(19,184,173,.10);
+            }
+
+    .calendar-filter {
+        min-width: 160px;
+    }
+
+    .calendar-navigation {
+        display: flex;
+        gap: 6px;
+    }
+
+        .calendar-navigation button {
+            height: 39px;
+            padding: 0 12px;
+            border: 1px solid #e2eaf0;
+            border-radius: 10px;
+            color: #557086;
+            background: white;
+            font-size: 11px;
+            font-weight: 750;
+            transition: all .2s ease;
+        }
+
+            .calendar-navigation button:hover {
+                border-color: #46bdb2;
+                color: #0c938b;
+                background: #effbf9;
+                transform: translateY(-1px);
+            }
+
+    .booking-calendar {
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border: 1px solid #e5edf3;
+        border-radius: 13px;
+        background: white;
+        --day-width: 120px;
+        scrollbar-width: thin;
+        scrollbar-color: #b5c9d1 #f3f7f9;
+    }
+
+        .booking-calendar::-webkit-scrollbar {
+            height: 9px;
+        }
+
+        .booking-calendar::-webkit-scrollbar-track {
+            background: #f3f7f9;
+            border-radius: 20px;
+        }
+
+        .booking-calendar::-webkit-scrollbar-thumb {
+            background: #b5c9d1;
+            border-radius: 20px;
+        }
+
+    .calendar-grid {
+        width: max-content;
+        min-width: 100%;
+    }
+
+    .calendar-header {
+        display: grid;
+        grid-template-columns: 180px repeat(var(--total-days), var(--day-width));
+        position: sticky;
+        top: 0;
+        z-index: 6;
+        width: max-content;
+    }
+
+    .calendar-room-heading {
+        position: sticky;
+        left: 0;
+        z-index: 8;
+        width: 180px;
+        padding: 13px;
+        background: #f1f7f8;
+        border-right: 1px solid #e3ebef;
+        color: #64808f;
+        font-size: 10px;
+        font-weight: 850;
+        letter-spacing: 1px;
+    }
+
+    .calendar-day {
+        width: var(--day-width);
+        min-height: 58px;
+        padding: 9px 4px;
+        border-left: 1px solid #e9eff3;
+        background: #f8fafc;
+        color: #8a9baa;
+        text-align: center;
+        font-size: 11px;
+    }
+
+        .calendar-day .day-number {
+            color: #3e5b70;
+            font-size: 12px;
+            font-weight: 850;
+            margin-bottom: 3px;
+        }
+
+        .calendar-day.today {
+            background: #e3f8f5;
+            color: #159e94;
+            box-shadow: inset 0 -2px 0 #20b8aa;
+        }
+
+            .calendar-day.today .day-number {
+                color: #078f86;
+            }
+
+    .calendar-room-group {
+        display: block;
+        width: max-content;
+        min-width: 100%;
+        min-height: 32px;
+        border-top: 1px solid #e9eff3;
+    }
+
+    .calendar-group-label {
+        width: 100%;
+        padding: 9px 13px;
+        color: #258c8a;
+        background: #f0f8f8;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .calendar-room-row {
+        display: grid;
+        grid-template-columns: 180px calc(var(--total-days) * var(--day-width));
+        width: max-content;
+        min-height: 62px;
+        border-top: 1px solid #edf1f4;
+        transition: background .2s ease;
+    }
+
+        .calendar-room-row:hover {
+            background: #f9fcfd;
+        }
+
+    .calendar-room-info {
+        position: sticky;
+        left: 0;
+        z-index: 4;
+        width: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        padding: 7px 10px;
+        background: white;
+        border-right: 1px solid #e5edf2;
+    }
+
+    .calendar-room-row:hover .calendar-room-info {
+        background: #f9fcfd;
+    }
+
+    .calendar-room-info strong {
+        display: block;
+        color: #24475e;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .calendar-room-info small {
+        color: #96a5b2;
+        font-size: 10px;
+    }
+
+    .calendar-room-status {
+        flex-shrink: 0;
+        padding: 4px 7px;
+        border-radius: 20px;
+        font-size: 9px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .room-available {
+        color: #15966a;
+        background: #e5f7ef;
+    }
+
+    .room-occupied {
+        color: #3978d5;
+        background: #eaf2ff;
+    }
+
+    .room-cleaning {
+        color: #d58b2f;
+        background: #fff3e2;
+    }
+
+    .room-maintenance {
+        color: #d65363;
+        background: #ffedef;
+    }
+
+    .calendar-timeline {
+        position: relative;
+        width: calc(var(--total-days) * var(--day-width));
+        height: 62px;
+        background-image: repeating-linear-gradient( to right, #e9eff3 0, #e9eff3 1px, transparent 1px, transparent var(--day-width) );
+    }
+
+    .calendar-today-line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #18b8aa;
+        opacity: .7;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .calendar-booking {
+        position: absolute;
+        top: 16px;
+        height: 30px;
+        left: calc(var(--left) * 1%);
+        width: calc(var(--width) * 1%);
+        min-width: 4px;
+        display: flex;
+        align-items: center;
+        padding: 0 9px;
+        overflow: hidden;
+        white-space: nowrap;
+        border-radius: 7px;
+        color: white;
+        font-size: 10px;
+        font-weight: 750;
+        z-index: 2;
+        cursor: default;
+        box-shadow: 0 3px 7px rgba(30,65,90,.12);
+        transition: filter .2s ease, transform .2s ease, box-shadow .2s ease;
+    }
+
+        .calendar-booking.booked {
+            background: linear-gradient(100deg, #3679d0, #5596e1);
+        }
+
+        .calendar-booking.checked-in {
+            background: linear-gradient(100deg, #12a77f, #35c29d);
+        }
+
+        .calendar-booking.checkout {
+            background: linear-gradient(100deg, #d84d78, #ec7292);
+        }
+
+        .calendar-booking:hover {
+            filter: brightness(1.06);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 13px rgba(30,65,90,.2);
+            z-index: 4;
+        }
+
+    .calendar-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin: 13px 0;
+        color: #7f92a3;
+        font-size: 11px;
+    }
+
+        .calendar-legend span {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .calendar-legend i {
+            width: 9px;
+            height: 9px;
+            display: inline-block;
+            border-radius: 3px;
+        }
+
+    .calendar-empty {
+        padding: 35px;
+        color: #91a0af;
+        text-align: center;
+        font-size: 12px;
+    }
+
+    /* THAO TÁC NHANH */
+
+    .quick-action {
+        position: relative;
+        overflow: hidden;
+        min-height: 78px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid #e7edf2;
+        border-radius: 14px;
+        color: #34536b;
+        background: white;
+        transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease, background .25s ease;
+    }
+
+        .quick-action:hover {
+            transform: translateY(-4px);
+            border-color: #a5ddd7;
+            color: #138e87;
+            background: #f5fcfb;
+            box-shadow: 0 10px 22px rgba(24,100,100,.08);
+        }
+
+    .quick-action-icon {
+        width: 43px;
+        height: 43px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        color: #168f8b;
+        background: #e8f8f5;
+        font-size: 19px;
+        transition: transform .25s ease;
+    }
+
+    .quick-action:hover .quick-action-icon {
+        transform: rotate(-7deg) scale(1.08);
+    }
+
+    .quick-action strong {
+        font-size: 12px;
+        font-weight: 750;
+        line-height: 1.5;
+    }
+
+    .quick-action-arrow {
+        margin-left: auto;
+        color: #a5b5c1;
+        font-size: 17px;
+        transition: transform .2s ease, color .2s ease;
+    }
+
+    .quick-action:hover .quick-action-arrow {
+        color: #159e94;
+        transform: translateX(3px);
+    }
+
+    /* RESPONSIVE */
+
+    @@media (max-width: 1100px) {
+        .dashboard-welcome {
+            padding: 30px;
+        }
+
+        .stat-card {
+            padding: 17px;
+        }
+
+        .stat-number {
+            font-size: 29px;
+        }
+    }
+
+    @@media (max-width: 767px) {
+        .dashboard-welcome {
+            min-height: 210px;
+            padding: 24px;
+            border-radius: 18px;
+        }
+
+        .welcome-date {
+            display: none;
+        }
+
+        .dashboard-welcome h2 {
+            font-size: 25px;
+        }
+
+        .dashboard-section-heading h3 {
+            font-size: 18px;
+        }
+
+        .stat-card {
+            min-height: 175px;
+            padding: 15px;
+            border-radius: 15px;
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+        }
+
+        .stat-number {
+            font-size: 27px;
+        }
+
+        .dashboard-panel {
+            padding: 17px;
+            border-radius: 16px;
+        }
+
+        .activity-summary {
+            gap: 8px;
+        }
+
+        .activity-box {
+            padding: 13px;
+        }
+
+        .calendar-navigation {
+            width: 100%;
+        }
+
+            .calendar-navigation button {
+                flex: 1;
+                padding: 0 7px;
+            }
+
+        .booking-calendar {
+            --day-width: 110px;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .admin-dashboard *,
+        .admin-dashboard *::before,
+        .admin-dashboard *::after {
+            animation-duration: .01ms !important;
+            animation-iteration-count: 1 !important;
+            scroll-behavior: auto !important;
+            transition-duration: .01ms !important;
+        }
+    }
+</style>
+
+<div class="admin-dashboard">
+
+    <!-- BANNER CHÀO MỪNG -->
+    <section class="dashboard-welcome dash-animate">
+        <div class="welcome-content">
+            <div class="welcome-label">HOTEL MANAGEMENT SYSTEM</div>
+
+            <h2>
+                @(laAdmin ? "Chào mừng Quản trị viên!" : "Chào mừng Nhân viên Lễ tân!")
+            </h2>
+
+            <p>
+                Chúc bạn một ngày làm việc hiệu quả.
+                Hãy cùng theo dõi hoạt động khách sạn hôm nay.
+            </p>
+
+            <a asp-controller="DatPhongs"
+               asp-action="Create"
+               class="welcome-button">
+                <span>＋</span>
+                Tạo đặt phòng mới
+            </a>
+        </div>
+
+        <div class="welcome-date">
+            <div class="welcome-date-label">HÔM NAY</div>
+            <strong>@homNay.ToString("dd/MM/yyyy")</strong>
+            <span class="date-day">@homNay.ToString("dddd", new CultureInfo("vi-VN"))</span>
+        </div>
+    </section>
+
+    <!-- THỐNG KÊ -->
+    <div class="dashboard-section-heading dash-animate dash-delay-1">
+        <div>
+            <div class="section-kicker">TỔNG QUAN KHÁCH SẠN</div>
+            <h3>Tổng quan hoạt động</h3>
+            <p>Theo dõi nhanh tình hình vận hành trong ngày</p>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-6 col-xl-3 dash-animate dash-delay-1">
+            <div class="stat-card">
+                <div class="stat-card-top">
+                    <span class="stat-icon stat-blue">▣</span>
+                    <span class="stat-tag">Tổng @tongPhong phòng</span>
+                </div>
+                <div class="stat-label">Phòng còn trống</div>
+                <div class="stat-number">@phongTrong</div>
+                <div class="stat-note">Sẵn sàng phục vụ khách</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3 dash-animate dash-delay-2">
+            <div class="stat-card">
+                <div class="stat-card-top">
+                    <span class="stat-icon stat-green">▦</span>
+                    <span class="stat-tag">Hôm nay</span>
+                </div>
+                <div class="stat-label">Đặt phòng hôm nay</div>
+                <div class="stat-number">@datPhongHomNay</div>
+                <div class="stat-note">Lượt khách dự kiến nhận phòng</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3 dash-animate dash-delay-3">
+            <div class="stat-card">
+                <div class="stat-card-top">
+                    <span class="stat-icon stat-orange">♙</span>
+                    <span class="stat-tag">Hiện tại</span>
+                </div>
+                <div class="stat-label">Khách đang lưu trú</div>
+                <div class="stat-number">@khachDangLuuTru</div>
+                <div class="stat-note">Lượt đặt phòng đã check-in</div>
+            </div>
+        </div>
+
+        <div class="col-6 col-xl-3 dash-animate dash-delay-4">
+            <div class="stat-card">
+                <div class="stat-card-top">
+                    <span class="stat-icon stat-purple">◷</span>
+                    <span class="stat-tag">Công suất phòng</span>
+                </div>
+                <div class="stat-label">Tỷ lệ lấp đầy</div>
+                <div class="stat-number">@tyLeLapDay%</div>
+                <div class="stat-progress">
+                    <span style="width: @phanTramLapDay.ToString(CultureInfo.InvariantCulture)%"></span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TÌNH HÌNH VẬN HÀNH -->
+    <div class="dashboard-section-heading dash-animate dash-delay-2">
+        <div>
+            <div class="section-kicker">HOẠT ĐỘNG TRONG NGÀY</div>
+            <h3>Tình hình vận hành</h3>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-lg-5 dash-animate dash-delay-2">
+            <div class="dashboard-panel">
+                <div class="dashboard-panel-heading">
+                    <div class="panel-title-wrap">
+                        <span class="panel-heading-icon">▣</span>
+                        <div>
+                            <h5>Tình trạng phòng</h5>
+                            <div class="panel-subtitle">Tình trạng sử dụng phòng hiện tại</div>
+                        </div>
+                    </div>
+                    <a asp-controller="Phongs" asp-action="Index">Xem phòng ↗</a>
+                </div>
+
+                <div class="operation-item">
+                    <div class="operation-icon green">✓</div>
+                    <div class="operation-info">
+                        <strong>Phòng trống</strong>
+                        <span>Sẵn sàng đón khách</span>
+                    </div>
+                    <div class="operation-number">@phongTrong</div>
+                </div>
+
+                <div class="operation-item">
+                    <div class="operation-icon">♙</div>
+                    <div class="operation-info">
+                        <strong>Đang có khách ở</strong>
+                        <span>Phòng đang được sử dụng</span>
+                    </div>
+                    <div class="operation-number">@phongDangO</div>
+                </div>
+
+                <div class="operation-item">
+                    <div class="operation-icon orange">◷</div>
+                    <div class="operation-info">
+                        <strong>Đang dọn</strong>
+                        <span>Phòng đang vệ sinh</span>
+                    </div>
+                    <div class="operation-number">@phongDangDon</div>
+                </div>
+
+                <div class="operation-item">
+                    <div class="operation-icon red">⚒</div>
+                    <div class="operation-info">
+                        <strong>Bảo trì</strong>
+                        <span>Phòng tạm ngừng phục vụ</span>
+                    </div>
+                    <div class="operation-number">@phongBaoTri</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7 dash-animate dash-delay-3">
+            <div class="dashboard-panel">
+                <div class="dashboard-panel-heading">
+                    <div class="panel-title-wrap">
+                        <span class="panel-heading-icon">◷</span>
+                        <div>
+                            <h5>Lịch hoạt động hôm nay</h5>
+                            <div class="panel-subtitle">Lịch khách nhận phòng và trả phòng</div>
+                        </div>
+                    </div>
+                    <a asp-controller="DatPhongs" asp-action="Index">Quản lý ↗</a>
+                </div>
+
+                <div class="activity-summary">
+                    <div class="activity-box arrival">
+                        <div class="activity-box-label">KHÁCH NHẬN PHÒNG</div>
+                        <div class="activity-box-number">@sapDen</div>
+                        <div class="dashboard-muted">Dự kiến check-in hôm nay</div>
+                        <div class="activity-box-icon">↓</div>
+                    </div>
+
+                    <div class="activity-box departure">
+                        <div class="activity-box-label">KHÁCH TRẢ PHÒNG</div>
+                        <div class="activity-box-number">@sapDi</div>
+                        <div class="dashboard-muted">Dự kiến check-out hôm nay</div>
+                        <div class="activity-box-icon">↑</div>
+                    </div>
+                </div>
+
+                <div class="occupancy-info">
+                    <div class="occupancy-info-top">
+                        <span>Công suất sử dụng phòng</span>
+                        <span>@tyLeLapDay%</span>
+                    </div>
+
+                    <div class="occupancy-track">
+                        <div class="occupancy-progress"
+                             style="width: @phanTramLapDay.ToString(CultureInfo.InvariantCulture)%">
+                        </div>
+                    </div>
+
+                    <div class="dashboard-muted mt-2">
+                        @phongDangO phòng đang có khách trên tổng số @tongPhong phòng.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- LỊCH ĐẶT PHÒNG -->
+    <div class="dashboard-panel mb-4 dash-animate dash-delay-3">
+
+        <div class="dashboard-panel-heading">
+            <div class="panel-title-wrap">
+                <span class="panel-heading-icon">▦</span>
+                <div>
+                    <h5>Lịch đặt phòng</h5>
+                    <div class="panel-subtitle">
+                        Tháng @homNay.ToString("MM/yyyy") · Theo dõi lịch nhận và trả phòng
+                    </div>
+                </div>
+            </div>
+
+            <a asp-controller="DatPhongs" asp-action="Index">
+                Quản lý đặt phòng ↗
+            </a>
+        </div>
+
+        <div class="calendar-toolbar">
+            <div class="calendar-search">
+                <input type="text"
+                       id="calendarSearch"
+                       placeholder="⌕  Tìm số phòng hoặc tên khách..." />
+            </div>
+
+            <div class="calendar-filter">
+                <select id="calendarStatusFilter">
+                    <option value="">Tất cả trạng thái phòng</option>
+                    <option value="Trống">Trống</option>
+                    <option value="Đã đặt">Đã đặt</option>
+                    <option value="Đang ở">Đang ở</option>
+                    <option value="Đang dọn">Đang dọn</option>
+                    <option value="Bảo trì">Bảo trì</option>
+                </select>
+            </div>
+
+            <div class="calendar-navigation">
+                <button type="button" id="calendarToday">Hôm nay</button>
+                <button type="button" id="calendarStart">Đầu tháng</button>
+                <button type="button" id="calendarEnd">Cuối tháng</button>
+            </div>
+        </div>
+
+        <div class="calendar-legend">
+            <span><i style="background:#3679d0"></i> Đã đặt</span>
+            <span><i style="background:#12a77f"></i> Đang lưu trú</span>
+            <span><i style="background:#d84d78"></i> Đã check-out</span>
+        </div>
+
+        <div class="booking-calendar"
+             id="bookingCalendar"
+             style="--total-days: @soNgayTrongThang;">
+
+            <div class="calendar-grid">
+
+                <div class="calendar-header">
+                    <div class="calendar-room-heading">DANH SÁCH PHÒNG</div>
+
+                    @foreach (var ngay in ngayTrongLich)
+                    {
+                        <div class="calendar-day @(ngay.Date == homNay ? "today" : "")">
+                            <div class="day-number">@ngay.ToString("dd/MM")</div>
+                            <div>@ngay.ToString("ddd")</div>
+                        </div>
+                    }
+                </div>
+
+                @if (!lichDatPhong.Any())
+                {
+                    <div class="calendar-empty">
+                        Chưa có dữ liệu phòng.
+                    </div>
+                }
+                else
+                {
+                    @foreach (var nhom in nhomLoaiPhong)
+                    {
+                        <div class="calendar-room-group">
+                            <div class="calendar-group-label">
+                                ▾ @nhom.Key
+                                <span class="dashboard-muted">
+                                    (@nhom.Count() phòng)
+                                </span>
+                            </div>
+                        </div>
+
+                        @foreach (var phong in nhom.OrderBy(p => p.SoPhong))
+                        {
+                            var trangThaiPhong = phong.TrangThaiPhong ?? "";
+
+                            var classTrangThai = trangThaiPhong switch
+                            {
+                                "Trống" => "room-available",
+                                "Đã đặt" => "room-occupied",
+                                "Đang ở" => "room-occupied",
+                                "Đang dọn" => "room-cleaning",
+                                "Bảo trì" => "room-maintenance",
+                                _ => "room-available"
+                            };
+
+                            <div class="calendar-room-row"
+                                 data-room="@phong.SoPhong"
+                                 data-type="@phong.TenLoaiPhong"
+                                 data-status="@trangThaiPhong">
+
+                                <div class="calendar-room-info">
+                                    <div>
+                                        <strong>Phòng @phong.SoPhong</strong>
+                                        <small>@phong.TenLoaiPhong</small>
+                                    </div>
+
+                                    <span class="calendar-room-status @classTrangThai">
+                                        @trangThaiPhong
+                                    </span>
+                                </div>
+
+                                <div class="calendar-timeline">
+                                    <div class="calendar-today-line"
+                                         style="left: @viTriHomNayCss%">
+                                    </div>
+
+                                    @foreach (var dat in phong.DanhSachDatPhong)
+                                    {
+                                        if (dat.TrangThai == "Đã hủy")
+                                        {
+                                            continue;
+                                        }
+
+                                        var thoiGianNhan = dat.NgayDen.Date.AddHours(14);
+                                        var thoiGianTra = dat.NgayDi.Date.AddHours(12);
+
+                                        var batDau = (thoiGianNhan - ngayDauThang).TotalHours / 24;
+                                        var ketThuc = (thoiGianTra - ngayDauThang).TotalHours / 24;
+
+                                        var batDauHienThi = Math.Clamp(batDau, 0, (double)soNgayTrongThang);
+                                        var ketThucHienThi = Math.Clamp(ketThuc, 0, (double)soNgayTrongThang);
+
+                                        var viTri = batDauHienThi / soNgayTrongThang * 100;
+                                        var doRong = (ketThucHienThi - batDauHienThi)
+                                            / soNgayTrongThang * 100;
+
+                                        var viTriCss = viTri.ToString(CultureInfo.InvariantCulture);
+                                        var doRongCss = doRong.ToString(CultureInfo.InvariantCulture);
+
+                                        var mauDatPhong = dat.TrangThai switch
+                                        {
+                                            "Đã check-in" => "checked-in",
+                                            "Đã check-out" => "checkout",
+                                            _ => "booked"
+                                        };
+
+                                        if (doRong > 0)
+                                        {
+                                            <div class="calendar-booking @mauDatPhong"
+                                                 style="--left:@viTriCss; --width:@doRongCss;"
+                                                 title="@($"{dat.TenKhachHang} | Nhận: {dat.NgayDen:dd/MM/yyyy} 14:00 | Trả: {dat.NgayDi:dd/MM/yyyy} 12:00 | {dat.TrangThai}")">
+                                                @dat.TenKhachHang
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="dashboard-muted mt-3">
+            Mỗi hàng tương ứng với một phòng. Kéo thanh cuộn ngang để xem các ngày trong tháng.
+            Ngày hôm nay được đánh dấu màu xanh. Thanh đặt phòng tính theo giờ nhận 14:00
+            và trả 12:00. Di chuột lên thanh màu để xem thông tin đặt phòng.
+        </div>
+    </div>
+
+    <!-- THAO TÁC NHANH -->
+    <div class="dashboard-panel mb-4 dash-animate dash-delay-4">
+        <div class="dashboard-panel-heading">
+            <div class="panel-title-wrap">
+                <span class="panel-heading-icon">✦</span>
+                <div>
+                    <h5>Thao tác nhanh</h5>
+                    <div class="panel-subtitle">Truy cập nhanh các chức năng quản lý</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+
+            @if (laAdmin)
+            {
+                <div class="col-6 col-md-4 col-xl-3">
+                    <a asp-controller="LoaiPhongs" asp-action="Index" class="quick-action">
+                        <span class="quick-action-icon">▤</span>
+                        <strong>Quản lý loại phòng</strong>
+                        <span class="quick-action-arrow">›</span>
+                    </a>
+                </div>
+            }
+
+            <div class="col-6 col-md-4 col-xl-3">
+                <a asp-controller="Phongs" asp-action="Index" class="quick-action">
+                    <span class="quick-action-icon">▣</span>
+                    <strong>Quản lý phòng</strong>
+                    <span class="quick-action-arrow">›</span>
+                </a>
+            </div>
+
+            <div class="col-6 col-md-4 col-xl-3">
+                <a asp-controller="KhachHangs" asp-action="Index" class="quick-action">
+                    <span class="quick-action-icon">♙</span>
+                    <strong>Khách hàng</strong>
+                    <span class="quick-action-arrow">›</span>
+                </a>
+            </div>
+
+            <div class="col-6 col-md-4 col-xl-3">
+                <a asp-controller="DatPhongs" asp-action="Create" class="quick-action">
+                    <span class="quick-action-icon">＋</span>
+                    <strong>Đặt phòng mới</strong>
+                    <span class="quick-action-arrow">›</span>
+                </a>
+            </div>
+
+            <div class="col-6 col-md-4 col-xl-3">
+                <a asp-controller="DatPhongs" asp-action="Index" class="quick-action">
+                    <span class="quick-action-icon">▦</span>
+                    <strong>Danh sách đặt phòng</strong>
+                    <span class="quick-action-arrow">›</span>
+                </a>
+            </div>
+
+            <div class="col-6 col-md-4 col-xl-3">
+                <a asp-controller="HoaDons" asp-action="Index" class="quick-action">
+                    <span class="quick-action-icon">▧</span>
+                    <strong>Quản lý hóa đơn</strong>
+                    <span class="quick-action-arrow">›</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const calendar = document.getElementById("bookingCalendar");
+        if (!calendar) return;
+
+        const todayButton = document.getElementById("calendarToday");
+        const startButton = document.getElementById("calendarStart");
+        const endButton = document.getElementById("calendarEnd");
+        const searchInput = document.getElementById("calendarSearch");
+        const statusFilter = document.getElementById("calendarStatusFilter");
+
+        const dayWidth = window.matchMedia("(max-width: 767px)").matches ? 110 : 120;
+        const roomColumnWidth = 180;
+        const todayIndex = @homNay.Day -1;
+
+        function scrollToDay(dayIndex) {
+            const targetLeft = roomColumnWidth + dayIndex * dayWidth
+                - (calendar.clientWidth - roomColumnWidth) / 2;
+
+            calendar.scrollTo({
+                left: Math.max(
+                    0,
+                    Math.min(targetLeft, calendar.scrollWidth - calendar.clientWidth)
+                ),
+                behavior: "smooth"
+            });
+        }
+
+        requestAnimationFrame(function () {
+            scrollToDay(todayIndex);
+        });
+
+        todayButton?.addEventListener("click", function () {
+            scrollToDay(todayIndex);
+        });
+
+        startButton?.addEventListener("click", function () {
+            calendar.scrollTo({
+                left: 0,
+                behavior: "smooth"
+            });
+        });
+
+        endButton?.addEventListener("click", function () {
+            calendar.scrollTo({
+                left: calendar.scrollWidth,
+                behavior: "smooth"
+            });
+        });
+
+        function filterRooms() {
+            const keyword = (searchInput?.value || "").trim().toLowerCase();
+            const status = statusFilter?.value || "";
+
+            document.querySelectorAll(".calendar-room-row").forEach(function (row) {
+                const room = (row.dataset.room || "").toLowerCase();
+                const roomStatus = row.dataset.status || "";
+
+                const bookingNames = Array.from(
+                    row.querySelectorAll(".calendar-booking")
+                ).map(function (item) {
+                    return item.textContent.toLowerCase();
+                }).join(" ");
+
+                const matchKeyword =
+                    keyword === "" ||
+                    room.includes(keyword) ||
+                    bookingNames.includes(keyword);
+
+                const matchStatus =
+                    status === "" || roomStatus === status;
+
+                row.style.display =
+                    matchKeyword && matchStatus ? "grid" : "none";
+            });
+
+            document.querySelectorAll(".calendar-room-group").forEach(function (group) {
+                let next = group.nextElementSibling;
+                let hasVisibleRoom = false;
+
+                while (next && next.classList.contains("calendar-room-row")) {
+                    if (next.style.display !== "none") {
+                        hasVisibleRoom = true;
+                        break;
+                    }
+                    next = next.nextElementSibling;
+                }
+
+                group.style.display = hasVisibleRoom ? "block" : "none";
+            });
+        }
+
+        searchInput?.addEventListener("input", filterRooms);
+        statusFilter?.addEventListener("change", filterRooms);
+    });
+</script>

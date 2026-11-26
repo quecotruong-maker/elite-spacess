@@ -1,0 +1,274 @@
+﻿
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - HOTEL MANAGEMENT</title>
+
+    <script type="importmap"></script>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/QuanLyKhachSan.styles.css" asp-append-version="true" />
+</head>
+
+<body>
+    @{
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+
+        bool laAdmin = User.IsInRole("Admin");
+        bool laLeTan = User.IsInRole("LeTan");
+        bool laKhachHang = User.IsInRole("KhachHang");
+        bool daDangNhap = User.Identity?.IsAuthenticated == true;
+
+        string vaiTro = laAdmin ? "QUẢN TRỊ VIÊN"
+            : laLeTan ? "NHÂN VIÊN LỄ TÂN"
+            : laKhachHang ? "KHÁCH HÀNG"
+            : "KHÁCH VÃNG LAI";
+    }
+
+    <div class="hotel-layout">
+
+        <!-- SIDEBAR -->
+        <aside class="hotel-sidebar" id="hotelSidebar">
+
+            <a class="hotel-logo"
+               asp-controller="Home"
+               asp-action="Index">
+
+                <div class="hotel-logo-icon">H</div>
+
+                <div class="hotel-logo-info">
+                    <div class="hotel-logo-name">HOTEL</div>
+                    <div class="hotel-logo-caption">MANAGEMENT SYSTEM</div>
+                </div>
+            </a>
+
+            <div class="sidebar-menu">
+
+                @if (laAdmin)
+                {
+                    <div class="sidebar-section-title">QUẢN TRỊ HỆ THỐNG</div>
+
+                    <a class="sidebar-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")"
+                       asp-controller="Home" asp-action="Index">
+                        <span class="sidebar-icon">▦</span>
+                        <span>Tổng quan</span>
+                    </a>
+
+                    <a class="sidebar-link @(currentController == "LoaiPhongs" ? "active" : "")"
+                       asp-controller="LoaiPhongs" asp-action="Index">
+                        <span class="sidebar-icon">▤</span>
+                        <span>Loại phòng</span>
+                    </a>
+
+                    <a class="sidebar-link @(currentController == "Phongs" ? "active" : "")"
+                       asp-controller="Phongs" asp-action="Index">
+                        <span class="sidebar-icon">▣</span>
+                        <span>Quản lý phòng</span>
+                    </a>
+
+                    <a class="sidebar-link @(currentController == "KhachHangs" ? "active" : "")"
+                       asp-controller="KhachHangs" asp-action="Index">
+                        <span class="sidebar-icon">♙</span>
+                        <span>Khách hàng</span>
+                    </a>
+
+                    <a class="sidebar-link @(currentController == "DatPhongs" ? "active" : "")"
+                       asp-controller="DatPhongs" asp-action="Index">
+                        <span class="sidebar-icon">▦</span>
+                        <span>Đặt phòng</span>
+                    </a>
+
+                    <a class="sidebar-link @(currentController == "HoaDons" ? "active" : "")"
+                       asp-controller="HoaDons" asp-action="Index">
+                        <span class="sidebar-icon">▤</span>
+                        <span>Hóa đơn</span>
+                    </a>
+
+                    <a class="sidebar-link @(currentController == "Home" && currentAction == "BaoCao" ? "active" : "")"
+                       asp-controller="Home" asp-action="BaoCao">
+                        <span class="sidebar-icon">▥</span>
+                        <span>Báo cáo và thống kê</span>
+                    </a>
+                }
+                else if (laLeTan)
+                {
+                    <div class="sidebar-section-title">NGHIỆP VỤ LỄ TÂN</div>
+
+                    <a class="sidebar-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")"
+                       asp-controller="Home" asp-action="Index">
+                        <span class="sidebar-icon">▦</span>
+                        <span>Tổng quan</span>
+                    </a>
+
+                    <a class="sidebar-link @(currentController == "Phongs" ? "active" : "")"
+                       asp-controller="Phongs" asp-action="Index">
+                        <span class="sidebar-icon">▣</span>
+                        <span>Quản lý phòng</span>
+                    </a>
+
+                    <a class="sidebar-link @(currentController == "KhachHangs" ? "active" : "")"
+                       asp-controller="KhachHangs" asp-action="Index">
+                        <span class="sidebar-icon">♙</span>
+                        <span>Khách hàng</span>
+                    </a>
+
+                    <a class="sidebar-link @(currentController == "DatPhongs" ? "active" : "")"
+                       asp-controller="DatPhongs" asp-action="Index">
+                        <span class="sidebar-icon">▦</span>
+                        <span>Đặt phòng</span>
+                    </a>
+
+                    <a class="sidebar-link @(currentController == "HoaDons" ? "active" : "")"
+                       asp-controller="HoaDons" asp-action="Index">
+                        <span class="sidebar-icon">▤</span>
+                        <span>Hóa đơn</span>
+                    </a>
+                }
+                else
+                {
+                    <div class="sidebar-section-title">KHÔNG GIAN CỦA BẠN</div>
+
+                    <a class="sidebar-link @(currentController == "Home" && currentAction == "Index" ? "active" : "")"
+                       asp-controller="Home" asp-action="Index">
+                        <span class="sidebar-icon">⌂</span>
+                        <span>Trang chủ</span>
+                    </a>
+
+                    <a class="sidebar-link @(currentController == "Phongs" ? "active" : "")"
+                       asp-controller="Phongs" asp-action="TimPhongTrong">
+                        <span class="sidebar-icon">⌕</span>
+                        <span>Tìm phòng</span>
+                    </a>
+
+                    @if (laKhachHang && daDangNhap)
+                    {
+                        <div class="sidebar-section-title">DỊCH VỤ CỦA TÔI</div>
+
+                        <a class="sidebar-link @(currentController == "DatPhongs" ? "active" : "")"
+                           asp-controller="DatPhongs" asp-action="PhongCuaToi">
+                            <span class="sidebar-icon">▣</span>
+                            <span>Phòng của tôi</span>
+                        </a>
+
+                        <a class="sidebar-link @(currentController == "ThongBao" ? "active" : "")"
+                           asp-controller="ThongBao" asp-action="Index">
+                            <span class="sidebar-icon">♧</span>
+                            <span>Thông báo</span>
+                        </a>
+
+                        <a class="sidebar-link @(currentController == "HoaDons" ? "active" : "")"
+                           asp-controller="HoaDons" asp-action="HoaDonCuaToi">
+                            <span class="sidebar-icon">▤</span>
+                            <span>Hóa đơn của tôi</span>
+                        </a>
+
+                        <a class="sidebar-link @(currentController == "HoSo" ? "active" : "")"
+                           asp-controller="HoSo" asp-action="Index">
+                            <span class="sidebar-icon">♙</span>
+                            <span>Hồ sơ của tôi</span>
+                        </a>
+                    }
+                }
+
+            </div>
+
+            <div class="sidebar-bottom">
+                <div class="sidebar-bottom-icon">✦</div>
+                <div class="sidebar-bottom-title">HOTEL MANAGEMENT</div>
+                <div class="sidebar-bottom-text">
+                    Trải nghiệm dịch vụ tốt nhất
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- KHU VỰC CHÍNH -->
+        <div class="hotel-main">
+
+            <!-- HEADER -->
+            <header class="hotel-topbar">
+
+                <button class="sidebar-toggle"
+                        type="button"
+                        aria-label="Mở menu"
+                        onclick="document.body.classList.toggle('sidebar-open')">
+                    ☰
+                </button>
+
+                <div class="topbar-heading">
+                    <div class="topbar-heading-title">
+                        @vaiTro
+                    </div>
+                    <div class="topbar-heading-subtitle">
+                        HOTEL MANAGEMENT SYSTEM
+                    </div>
+                </div>
+
+                <div class="topbar-right">
+
+                    @if (laKhachHang && daDangNhap)
+                    {
+                        <div class="topbar-notification">
+                            @await Component.InvokeAsync("ThongBao")
+                        </div>
+                    }
+
+                    <div class="topbar-account">
+                        <partial name="_LoginPartial" />
+                    </div>
+
+                </div>
+
+            </header>
+
+            <!-- NỘI DUNG TRANG -->
+            <main class="hotel-content">
+
+                @if (TempData["ThongBao"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show"
+                         role="alert">
+                        @TempData["ThongBao"]
+
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert"
+                                aria-label="Đóng">
+                        </button>
+                    </div>
+                }
+
+                @if (TempData["Loi"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show"
+                         role="alert">
+                        @TempData["Loi"]
+
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="alert"
+                                aria-label="Đóng">
+                        </button>
+                    </div>
+                }
+
+                @RenderBody()
+
+            </main>
+
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>

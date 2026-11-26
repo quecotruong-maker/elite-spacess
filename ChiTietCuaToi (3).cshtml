@@ -1,0 +1,224 @@
+﻿@model QuanLyKhachSan.Models.HoaDon
+
+@{
+    ViewData["Title"] = "Chi tiết hóa đơn";
+
+    var cacKhoanThanhToan = ViewBag.CacKhoanThanhToan
+        as List<QuanLyKhachSan.Models.ThanhToan>
+        ?? new List<QuanLyKhachSan.Models.ThanhToan>();
+
+    var tienDaThu = cacKhoanThanhToan
+        .Where(t => t.TrangThai == "ThanhCong")
+        .Sum(t => t.SoTien);
+
+    var tienConLai = Math.Max(0, Model.TongTien - tienDaThu);
+
+    var soDem = Model.DatPhong == null
+        ? 0
+        : (Model.DatPhong.NgayDi.Date - Model.DatPhong.NgayDen.Date).Days;
+}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold">Chi tiết hóa đơn</h2>
+            <p class="text-muted mb-0">
+                Thông tin chi phí và lịch sử thanh toán.
+            </p>
+        </div>
+
+        <a asp-controller="HoaDons"
+           asp-action="HoaDonCuaToi"
+           class="btn btn-outline-secondary rounded-pill">
+            ← Quay lại
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+
+            <h5 class="fw-bold mb-4">Thông tin lưu trú</h5>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="text-muted small">Khách hàng</div>
+                    <div class="fw-semibold">
+                        @(Model.DatPhong?.KhachHang?.HoTen ?? "Chưa có")
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Phòng</div>
+                    <div class="fw-semibold">
+                        @(Model.DatPhong?.Phong?.SoPhong ?? "Chưa có")
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Loại phòng</div>
+                    <div class="fw-semibold">
+                        @(Model.DatPhong?.Phong?.LoaiPhong?.TenLoai ?? "Chưa có")
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Ngày lập hóa đơn</div>
+                    <div class="fw-semibold">
+                        @Model.NgayLap.ToString("dd/MM/yyyy")
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Ngày nhận phòng</div>
+                    <div class="fw-semibold">
+                        @(Model.DatPhong?.NgayDen.ToString("dd/MM/yyyy") ?? "--")
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Ngày trả phòng</div>
+                    <div class="fw-semibold">
+                        @(Model.DatPhong?.NgayDi.ToString("dd/MM/yyyy") ?? "--")
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="text-muted small">Số đêm</div>
+                    <div class="fw-semibold">@soDem đêm</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
+        <div class="card-body p-4">
+
+            <h5 class="fw-bold mb-4">Tổng kết hóa đơn</h5>
+
+            <div class="row g-3">
+
+                <div class="col-md-4">
+                    <div class="bg-light rounded-3 p-3 h-100">
+                        <div class="text-muted small">Tổng tiền</div>
+                        <div class="fw-bold fs-5">
+                            @Model.TongTien.ToString("N0") đ
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="bg-light rounded-3 p-3 h-100">
+                        <div class="text-muted small">Đã thanh toán</div>
+                        <div class="fw-bold fs-5 text-success">
+                            @tienDaThu.ToString("N0") đ
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="bg-light rounded-3 p-3 h-100">
+                        <div class="text-muted small">Còn phải thanh toán</div>
+                        <div class="fw-bold fs-5 @(tienConLai > 0 ? "text-danger" : "text-success")">
+                            @tienConLai.ToString("N0") đ
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="mt-4">
+                @if (Model.DaThanhToan)
+                {
+                    <span class="badge bg-success rounded-pill px-3 py-2">
+                        Đã thanh toán đầy đủ
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                        Chưa thanh toán đủ
+                    </span>
+                }
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+
+            <h5 class="fw-bold mb-4">Lịch sử giao dịch</h5>
+
+            @if (!cacKhoanThanhToan.Any())
+            {
+                <div class="alert alert-info mb-0">
+                    Chưa có giao dịch thanh toán.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Khoản thanh toán</th>
+                                <th>Số tiền</th>
+                                <th>Phương thức</th>
+                                <th>Ngày thanh toán</th>
+                                <th>Trạng thái</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var t in cacKhoanThanhToan.OrderBy(x => x.NgayTao))
+                            {
+                                <tr>
+                                    <td>
+                                        @(t.LoaiThanhToan == "TienCoc"
+                                            ? "Tiền cọc"
+                                            : "Thanh toán còn lại")
+                                    </td>
+
+                                    <td class="fw-semibold">
+                                        @t.SoTien.ToString("N0") đ
+                                    </td>
+
+                                    <td>
+                                        @(t.PhuongThuc == "TienMat"
+                                            ? "Tiền mặt"
+                                            : t.PhuongThuc == "ChuyenKhoanMoPhong"
+                                                ? "Chuyển khoản"
+                                                : "Chưa xác định")
+                                    </td>
+
+                                    <td>
+                                        @(t.NgayThanhToan?.ToString("dd/MM/yyyy HH:mm") ?? "--")
+                                    </td>
+
+                                    <td>
+                                        @if (t.TrangThai == "ThanhCong")
+                                        {
+                                            <span class="badge bg-success">Thành công</span>
+                                        }
+                                        else if (t.TrangThai == "ChoThanhToan")
+                                        {
+                                            <span class="badge bg-warning text-dark">Chờ thanh toán</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@t.TrangThai</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+
+</div>

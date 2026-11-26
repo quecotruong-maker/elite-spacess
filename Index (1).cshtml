@@ -1,0 +1,79 @@
+﻿@model IEnumerable<QuanLyKhachSan.Models.DatPhong>
+
+@{
+    ViewData["Title"] = "Đặt phòng của tôi";
+}
+
+<h2 class="mb-4">Đặt phòng của tôi</h2>
+@if (TempData["ThongBao"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["ThongBao"]
+    </div>
+}
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Bạn chưa có đơn đặt phòng nào.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Mã đặt phòng</th>
+                    <th>Phòng</th>
+                    <th>Ngày đến</th>
+                    <th>Ngày đi</th>
+                    <th>Trạng thái</th>
+                    <th>Ghi chú</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.MaDatPhong</td>
+                        <td>
+                            @(item.Phong?.SoPhong ?? "Không có thông tin")
+                        </td>
+                        <td>@item.NgayDen.ToString("dd/MM/yyyy")</td>
+                        <td>@item.NgayDi.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            @if (item.TrangThai == "Đã đặt")
+                            {
+                                <span class="badge bg-primary">Đã đặt</span>
+                            }
+                            else if (item.TrangThai == "Đã check-in")
+                            {
+                                <span class="badge bg-success">Đã check-in</span>
+                            }
+                            else if (item.TrangThai == "Đã check-out")
+                            {
+                                <span class="badge bg-secondary">Đã check-out</span>
+                            }
+                            else if (item.TrangThai == "Đã hủy")
+                            {
+                                <span class="badge bg-danger">Đã hủy</span>
+                            }
+                            else
+                            {
+                                @item.TrangThai
+                            }
+                        </td>
+                        <td>@(string.IsNullOrWhiteSpace(item.GhiChu) ? "-" : item.GhiChu)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<a asp-controller="Home"
+   asp-action="Index"
+   class="btn btn-outline-primary mt-3">
+    Quay lại tìm phòng
+</a>

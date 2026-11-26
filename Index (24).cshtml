@@ -1,0 +1,1102 @@
+@model IEnumerable<QuanLyKhachSan.Models.Phong>
+
+@{
+    ViewData["Title"] = "Quản lý phòng";
+
+    string tuKhoaLoc = ViewBag.TuKhoa ?? "";
+    string trangThaiLoc = ViewBag.TrangThai ?? "";
+
+    var danhSachPhong = Model.ToList();
+    var tongPhong = danhSachPhong.Count;
+
+    var phongTrong = danhSachPhong.Count(x => x.TrangThai == "Trống");
+    var phongDaDat = danhSachPhong.Count(x => x.TrangThai == "Đã đặt");
+    var phongDangO = danhSachPhong.Count(x => x.TrangThai == "Đang ở");
+    var phongBaoTri = danhSachPhong.Count(x => x.TrangThai == "Bảo trì");
+
+    var phongChuaDon = danhSachPhong.Count(x =>
+        x.TinhTrangVeSinh == "Chưa dọn" ||
+        x.TinhTrangVeSinh == "Bẩn");
+
+    var phongDaDon = danhSachPhong.Count(x =>
+        x.TinhTrangVeSinh == "Đã dọn" ||
+        x.TinhTrangVeSinh == "Sạch");
+
+    var phongDaKiemTra = danhSachPhong.Count(x =>
+        x.TinhTrangVeSinh == "Đã kiểm tra");
+}
+
+<style>
+    .room-page {
+        --room-primary: #168c91;
+        --room-primary-dark: #117579;
+        --room-text: #183b4b;
+        --room-muted: #82939e;
+        --room-border: #e7eef0;
+        color: var(--room-text);
+        padding-bottom: 32px;
+        animation: roomFadeIn .55s ease both;
+    }
+
+    @@keyframes roomFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .room-page * {
+        box-sizing: border-box;
+    }
+
+    .room-hero {
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        padding: 30px 32px;
+        margin-bottom: 24px;
+        border-radius: 22px;
+        background: linear-gradient(115deg, #126d76 0%, #168c91 55%, #55b8b0 100%);
+        color: white;
+        box-shadow: 0 12px 30px rgba(22, 140, 145, .18);
+    }
+
+        .room-hero::before,
+        .room-hero::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,.08);
+            pointer-events: none;
+        }
+
+        .room-hero::before {
+            width: 230px;
+            height: 230px;
+            right: 12%;
+            top: -145px;
+        }
+
+        .room-hero::after {
+            width: 180px;
+            height: 180px;
+            right: -35px;
+            bottom: -115px;
+        }
+
+    .room-hero-content,
+    .room-hero-actions {
+        position: relative;
+        z-index: 1;
+    }
+
+    .room-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 11px;
+        margin-bottom: 11px;
+        border: 1px solid rgba(255,255,255,.23);
+        border-radius: 30px;
+        background: rgba(255,255,255,.12);
+        color: #e7ffff;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .room-hero h1 {
+        color: white;
+        font-size: clamp(24px, 3vw, 31px);
+        font-weight: 800;
+        letter-spacing: -.7px;
+        margin: 0 0 8px;
+    }
+
+    .room-hero p {
+        color: rgba(255,255,255,.83);
+        margin: 0;
+        font-size: 14px;
+    }
+
+    .room-hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .room-hero-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        padding: 10px 16px;
+        border: 1px solid rgba(255,255,255,.3);
+        border-radius: 11px;
+        color: white;
+        background: rgba(255,255,255,.13);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+        transition: all .25s ease;
+        white-space: nowrap;
+    }
+
+        .room-hero-btn:hover {
+            color: white;
+            background: rgba(255,255,255,.25);
+            transform: translateY(-2px);
+        }
+
+        .room-hero-btn.primary {
+            color: #14777b;
+            background: white;
+            border-color: white;
+        }
+
+            .room-hero-btn.primary:hover {
+                color: #105f63;
+                background: #eaffff;
+            }
+
+    .room-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 15px;
+        margin-bottom: 23px;
+    }
+
+    .room-stat {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        min-width: 0;
+        padding: 18px 16px;
+        background: rgba(255,255,255,.94);
+        border: 1px solid var(--room-border);
+        border-radius: 17px;
+        box-shadow: 0 4px 16px rgba(32, 75, 85, .035);
+        transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+        .room-stat:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(32, 75, 85, .09);
+        }
+
+    .room-stat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        border-radius: 13px;
+        font-size: 19px;
+    }
+
+        .room-stat-icon.total {
+            background: #e9f3f7;
+            color: #377b96;
+        }
+
+        .room-stat-icon.empty {
+            background: #e5f7ef;
+            color: #1c9b67;
+        }
+
+        .room-stat-icon.booked {
+            background: #e9efff;
+            color: #5576c9;
+        }
+
+        .room-stat-icon.occupied {
+            background: #fff2df;
+            color: #d48a28;
+        }
+
+        .room-stat-icon.alert {
+            background: #fff0ef;
+            color: #d66b63;
+        }
+
+    .room-stat-info {
+        min-width: 0;
+    }
+
+    .room-stat-label {
+        color: var(--room-muted);
+        font-size: 11px;
+        font-weight: 650;
+        margin-bottom: 5px;
+        white-space: nowrap;
+    }
+
+    .room-stat-value {
+        color: var(--room-text);
+        font-size: 24px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .room-filter {
+        padding: 20px;
+        margin-bottom: 22px;
+        background: white;
+        border: 1px solid var(--room-border);
+        border-radius: 18px;
+        box-shadow: 0 4px 18px rgba(32, 75, 85, .035);
+    }
+
+    .room-filter-heading {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-bottom: 15px;
+        color: var(--room-text);
+        font-size: 14px;
+        font-weight: 750;
+    }
+
+        .room-filter-heading i {
+            color: var(--room-primary);
+            font-size: 17px;
+        }
+
+    .room-filter .form-control,
+    .room-filter .form-select {
+        height: 45px;
+        border: 1px solid #e3ebed;
+        border-radius: 10px;
+        color: #36515e;
+        background-color: #fbfdfd;
+        font-size: 13px;
+        box-shadow: none;
+        transition: all .2s ease;
+    }
+
+        .room-filter .form-control:focus,
+        .room-filter .form-select:focus {
+            border-color: #53b8b3;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(22,140,145,.10);
+        }
+
+        .room-filter .form-control::placeholder {
+            color: #a3b0b8;
+        }
+
+    .room-filter-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        height: 45px;
+        padding: 0 17px;
+        border: 0;
+        border-radius: 10px;
+        background: var(--room-primary);
+        color: white;
+        font-size: 13px;
+        font-weight: 700;
+        transition: all .2s ease;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+        .room-filter-btn:hover {
+            color: white;
+            background: var(--room-primary-dark);
+            transform: translateY(-1px);
+        }
+
+    .room-reset-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 45px;
+        padding: 0 14px;
+        border: 1px solid #e2e9eb;
+        border-radius: 10px;
+        color: #71838d;
+        background: white;
+        font-size: 13px;
+        text-decoration: none;
+        transition: all .2s ease;
+        white-space: nowrap;
+    }
+
+        .room-reset-btn:hover {
+            color: var(--room-primary);
+            border-color: #8ac9c5;
+            background: #f2fbfa;
+        }
+
+    .room-list-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+
+    .room-list-title {
+        color: var(--room-text);
+        font-size: 17px;
+        font-weight: 800;
+        margin: 0;
+    }
+
+    .room-list-subtitle {
+        color: var(--room-muted);
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    .room-result-count {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 12px;
+        border-radius: 30px;
+        background: #eaf7f6;
+        color: #16858a;
+        font-size: 12px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+    .room-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 21px;
+    }
+
+    .room-card {
+        min-width: 0;
+        overflow: hidden;
+        position: relative;
+        background: white;
+        border: 1px solid var(--room-border);
+        border-radius: 19px;
+        box-shadow: 0 5px 19px rgba(32, 75, 85, .045);
+        transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+        animation: roomCardIn .5s ease both;
+    }
+
+        .room-card:hover {
+            transform: translateY(-6px);
+            border-color: #c8e6e3;
+            box-shadow: 0 15px 32px rgba(32, 75, 85, .11);
+        }
+
+    @@keyframes roomCardIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .room-card:nth-child(2) {
+        animation-delay: .04s;
+    }
+
+    .room-card:nth-child(3) {
+        animation-delay: .08s;
+    }
+
+    .room-card:nth-child(4) {
+        animation-delay: .12s;
+    }
+
+    .room-card:nth-child(5) {
+        animation-delay: .16s;
+    }
+
+    .room-card:nth-child(6) {
+        animation-delay: .20s;
+    }
+
+    .room-image-wrap {
+        height: 205px;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #e9f1f2, #dce9eb);
+    }
+
+    .room-image {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        transition: transform .55s ease;
+    }
+
+    .room-card:hover .room-image {
+        transform: scale(1.055);
+    }
+
+    .room-image-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        color: #8ba1a9;
+        font-size: 12px;
+    }
+
+        .room-image-placeholder i {
+            font-size: 35px;
+            opacity: .7;
+        }
+
+    .room-image-overlay {
+        position: absolute;
+        inset: auto 0 0;
+        height: 65px;
+        background: linear-gradient(transparent, rgba(12,35,43,.38));
+        pointer-events: none;
+    }
+
+    .room-photo-label {
+        position: absolute;
+        left: 13px;
+        bottom: 12px;
+        z-index: 1;
+        color: white;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .3px;
+        text-shadow: 0 1px 4px rgba(0,0,0,.35);
+    }
+
+    .room-card-body {
+        padding: 18px;
+    }
+
+    .room-card-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 9px;
+        margin-bottom: 14px;
+    }
+
+    .room-number {
+        color: var(--room-text);
+        font-size: 21px;
+        font-weight: 850;
+        letter-spacing: -.4px;
+        margin: 0;
+    }
+
+    .room-type {
+        color: var(--room-muted);
+        font-size: 12px;
+        margin-top: 5px;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        flex-shrink: 0;
+        padding: 7px 10px;
+        border-radius: 30px;
+        font-size: 10px;
+        font-weight: 750;
+        white-space: nowrap;
+    }
+
+        .status-badge::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+    .status-empty {
+        background: #e8f7ef;
+        color: #1b9861;
+    }
+
+    .status-booked {
+        background: #edf1ff;
+        color: #5877c9;
+    }
+
+    .status-occupied {
+        background: #fff3e1;
+        color: #c98220;
+    }
+
+    .status-cleaning {
+        background: #e7f6fa;
+        color: #16869c;
+    }
+
+    .status-maintenance {
+        background: #fff0ef;
+        color: #d45c56;
+    }
+
+    .room-card-divider {
+        height: 1px;
+        background: #edf1f2;
+        margin: 14px 0;
+    }
+
+    .room-price-row {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .room-price {
+        color: var(--room-primary-dark);
+        font-size: 21px;
+        font-weight: 850;
+        letter-spacing: -.4px;
+    }
+
+        .room-price small {
+            color: var(--room-muted);
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0;
+        }
+
+    .room-price-label {
+        color: #9aa9af;
+        font-size: 10px;
+    }
+
+    .room-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 17px;
+    }
+
+    .room-detail-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 39px;
+        padding: 9px 14px;
+        border-radius: 10px;
+        background: #eaf7f6;
+        color: #147e83;
+        font-size: 12px;
+        font-weight: 750;
+        text-decoration: none;
+        transition: all .2s ease;
+    }
+
+        .room-detail-btn:hover {
+            color: white;
+            background: var(--room-primary);
+            transform: translateX(2px);
+        }
+
+    .room-clean-btn {
+        width: 100%;
+        min-height: 39px;
+        margin-top: 12px;
+        border: 1px solid #bce4e9;
+        border-radius: 9px;
+        background: #f0fafb;
+        color: #16869c;
+        font-size: 11px;
+        font-weight: 700;
+        transition: all .2s ease;
+    }
+
+        .room-clean-btn:hover {
+            background: #16869c;
+            color: white;
+            border-color: #16869c;
+        }
+
+    .empty-room-list {
+        padding: 55px 20px;
+        text-align: center;
+        background: white;
+        border: 1px dashed #c8d9dc;
+        border-radius: 19px;
+    }
+
+    .empty-room-icon {
+        width: 70px;
+        height: 70px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 22px;
+        background: #edf7f7;
+        color: #4a9ea0;
+        font-size: 29px;
+        margin-bottom: 15px;
+    }
+
+    .empty-room-list h5 {
+        color: var(--room-text);
+        font-weight: 800;
+    }
+
+    .empty-room-list p {
+        color: var(--room-muted);
+        font-size: 13px;
+        margin: 7px 0 0;
+    }
+
+    @@media (max-width: 1200px) {
+        .room-stat-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .room-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .room-hero {
+            align-items: flex-start;
+            flex-direction: column;
+            padding: 24px 21px;
+        }
+
+        .room-stat-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .room-stat {
+            padding: 13px 11px;
+            gap: 9px;
+        }
+
+        .room-stat-icon {
+            width: 37px;
+            height: 37px;
+            font-size: 16px;
+        }
+
+        .room-stat-value {
+            font-size: 21px;
+        }
+
+        .room-stat-label {
+            font-size: 10px;
+        }
+
+        .room-grid {
+            gap: 14px;
+        }
+
+        .room-filter {
+            padding: 16px;
+        }
+    }
+
+    @@media (max-width: 520px) {
+        .room-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .room-hero-actions {
+            width: 100%;
+        }
+
+        .room-hero-btn {
+            flex: 1;
+        }
+
+        .room-list-heading {
+            align-items: flex-start;
+        }
+
+        .room-image-wrap {
+            height: 215px;
+        }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .room-page *,
+        .room-page *::before,
+        .room-page *::after {
+            animation-duration: .01ms !important;
+            transition-duration: .01ms !important;
+        }
+    }
+</style>
+
+<div class="room-page">
+
+    <!-- TIÊU ĐỀ TRANG -->
+    <section class="room-hero">
+        <div class="room-hero-content">
+            <div class="room-eyebrow">
+                <i class="bi bi-buildings"></i>
+                HOTEL MANAGEMENT SYSTEM
+            </div>
+
+            <h1>Quản lý phòng</h1>
+            <p>Quản lý danh sách phòng, theo dõi tình trạng và kiểm soát hoạt động khách sạn.</p>
+        </div>
+
+        <div class="room-hero-actions">
+            <a asp-controller="DatPhongs"
+               asp-action="LichDatPhong"
+               class="room-hero-btn">
+                <i class="bi bi-calendar3"></i>
+                Lịch đặt phòng
+            </a>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <a asp-action="Create" class="room-hero-btn primary">
+                    <i class="bi bi-plus-lg"></i>
+                    Thêm phòng mới
+                </a>
+            }
+        </div>
+    </section>
+
+    <!-- THỐNG KÊ -->
+    <section class="room-stat-grid">
+
+        <div class="room-stat">
+            <div class="room-stat-icon total">
+                <i class="bi bi-door-closed"></i>
+            </div>
+            <div class="room-stat-info">
+                <div class="room-stat-label">Tổng số phòng</div>
+                <div class="room-stat-value">@tongPhong</div>
+            </div>
+        </div>
+
+        <div class="room-stat">
+            <div class="room-stat-icon empty">
+                <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="room-stat-info">
+                <div class="room-stat-label">Phòng trống</div>
+                <div class="room-stat-value">@phongTrong</div>
+            </div>
+        </div>
+
+        <div class="room-stat">
+            <div class="room-stat-icon booked">
+                <i class="bi bi-calendar-check"></i>
+            </div>
+            <div class="room-stat-info">
+                <div class="room-stat-label">Đã đặt</div>
+                <div class="room-stat-value">@phongDaDat</div>
+            </div>
+        </div>
+
+        <div class="room-stat">
+            <div class="room-stat-icon occupied">
+                <i class="bi bi-person-check"></i>
+            </div>
+            <div class="room-stat-info">
+                <div class="room-stat-label">Đang có khách</div>
+                <div class="room-stat-value">@phongDangO</div>
+            </div>
+        </div>
+
+        <div class="room-stat">
+            <div class="room-stat-icon alert">
+                <i class="bi bi-broom"></i>
+            </div>
+            <div class="room-stat-info">
+                <div class="room-stat-label">Chưa dọn</div>
+                <div class="room-stat-value">@phongChuaDon</div>
+            </div>
+        </div>
+
+        <div class="room-stat">
+            <div class="room-stat-icon booked">
+                <i class="bi bi-stars"></i>
+            </div>
+            <div class="room-stat-info">
+                <div class="room-stat-label">Đã dọn</div>
+                <div class="room-stat-value">@phongDaDon</div>
+            </div>
+        </div>
+
+        <div class="room-stat">
+            <div class="room-stat-icon empty">
+                <i class="bi bi-shield-check"></i>
+            </div>
+            <div class="room-stat-info">
+                <div class="room-stat-label">Đã kiểm tra</div>
+                <div class="room-stat-value">@phongDaKiemTra</div>
+            </div>
+        </div>
+
+        <div class="room-stat">
+            <div class="room-stat-icon alert">
+                <i class="bi bi-tools"></i>
+            </div>
+            <div class="room-stat-info">
+                <div class="room-stat-label">Bảo trì</div>
+                <div class="room-stat-value">@phongBaoTri</div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- BỘ LỌC -->
+    <section class="room-filter">
+        <div class="room-filter-heading">
+            <i class="bi bi-sliders"></i>
+            Tìm kiếm và lọc phòng
+        </div>
+
+        <form asp-action="Index" method="get" class="row g-3 align-items-end">
+
+            <div class="col-lg-4 col-md-6">
+                <label class="form-label small fw-semibold text-secondary">Số phòng</label>
+                <input type="text"
+                       name="tuKhoa"
+                       value="@tuKhoaLoc"
+                       class="form-control"
+                       placeholder="Nhập số phòng cần tìm..." />
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label small fw-semibold text-secondary">Trạng thái</label>
+                <select name="trangThai" class="form-select">
+                    <option value="">Tất cả trạng thái</option>
+
+                    @foreach (var tt in new[] { "Trống", "Đã đặt", "Đang ở", "Bảo trì" })
+                    {
+                        <option value="@tt" selected="@(trangThaiLoc == tt)">
+                            @tt
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <label class="form-label small fw-semibold text-secondary">Loại phòng</label>
+                <select name="maLoaiPhong"
+                        class="form-select"
+                        asp-items="(SelectList)ViewBag.DanhSachLoai">
+                    <option value="">Tất cả loại phòng</option>
+                </select>
+            </div>
+
+            <div class="col-lg-2 col-md-6 d-flex gap-2">
+                <button type="submit" class="room-filter-btn flex-grow-1">
+                    <i class="bi bi-search"></i>
+                    Lọc
+                </button>
+
+                <a asp-action="Index" class="room-reset-btn">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </a>
+            </div>
+
+        </form>
+    </section>
+
+    <!-- DANH SÁCH PHÒNG -->
+    <div class="room-list-heading">
+        <div>
+            <h2 class="room-list-title">Danh sách phòng</h2>
+            <div class="room-list-subtitle">
+                Thông tin chi tiết và tình trạng vệ sinh các phòng trong khách sạn
+            </div>
+        </div>
+
+        <div class="room-result-count">
+            <i class="bi bi-grid"></i>
+            @tongPhong phòng
+        </div>
+    </div>
+
+    @if (danhSachPhong.Any())
+    {
+        <div class="room-grid">
+
+            @foreach (var item in danhSachPhong)
+            {
+                var trangThaiClass = item.TrangThai switch
+                {
+                    "Trống" => "status-empty",
+                    "Đã đặt" => "status-booked",
+                    "Đang ở" => "status-occupied",
+                    "Bảo trì" => "status-maintenance",
+                    _ => "status-booked"
+                };
+
+                var tinhTrangVeSinh = item.TinhTrangVeSinh switch
+                {
+                    "Bẩn" => "Chưa dọn",
+                    "Sạch" => "Đã dọn",
+                    _ => item.TinhTrangVeSinh
+                };
+
+                var veSinhClass = tinhTrangVeSinh switch
+                {
+                    "Chưa dọn" => "status-maintenance",
+                    "Đã dọn" => "status-cleaning",
+                    "Đã kiểm tra" => "status-empty",
+                    _ => "status-booked"
+                };
+
+                <article class="room-card">
+
+                    <div class="room-image-wrap">
+                        @if (!string.IsNullOrEmpty(item.HinhAnh))
+                        {
+                            <img src="@item.HinhAnh"
+                                 alt="Ảnh phòng @item.SoPhong"
+                                 class="room-image"
+                                 loading="lazy" />
+                        }
+                        else
+                        {
+                            <div class="room-image-placeholder">
+                                <i class="bi bi-image"></i>
+                                <span>Chưa có ảnh phòng</span>
+                            </div>
+                        }
+
+                        <div class="room-image-overlay"></div>
+
+                        <div class="room-photo-label">
+                            <i class="bi bi-building me-1"></i>
+                            HOTEL ROOM
+                        </div>
+                    </div>
+
+                    <div class="room-card-body">
+
+                        <div class="room-card-top">
+                            <div>
+                                <h3 class="room-number">Phòng @item.SoPhong</h3>
+
+                                <div class="room-type">
+                                    <i class="bi bi-door-open me-1"></i>
+                                    @item.LoaiPhong?.TenLoai
+                                </div>
+                            </div>
+
+                            <span class="status-badge @trangThaiClass">
+                                @item.TrangThai
+                            </span>
+                        </div>
+
+                        <!-- TÌNH TRẠNG VỆ SINH -->
+                        <div class="mt-2">
+                            <div class="small text-secondary mb-1">
+                                <i class="bi bi-stars me-1"></i>
+                                Tình trạng vệ sinh
+                            </div>
+
+                            <span class="status-badge @veSinhClass">
+                                @tinhTrangVeSinh
+                            </span>
+                        </div>
+
+                        <div class="room-card-divider"></div>
+
+                        <div class="room-price-row">
+                            <div class="room-price">
+                                @((item.LoaiPhong?.GiaMotDem ?? 0).ToString("N0")) đ
+                                <small>/ đêm</small>
+                            </div>
+
+                            <span class="room-price-label">GIÁ PHÒNG</span>
+                        </div>
+
+                        <div class="room-card-footer">
+                            <a asp-action="Details"
+                               asp-route-id="@item.MaPhong"
+                               class="room-detail-btn">
+                                Xem chi tiết
+                                <i class="bi bi-arrow-right"></i>
+                            </a>
+                        </div>
+
+                        <!-- NÚT QUẢN LÝ VỆ SINH -->
+                        @if (item.TinhTrangVeSinh == "Chưa dọn" ||
+                             item.TinhTrangVeSinh == "Bẩn")
+                        {
+                            <form asp-action="DanhDauDaDon"
+                                  asp-route-id="@item.MaPhong"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit" class="room-clean-btn">
+                                    <i class="bi bi-broom me-1"></i>
+                                    Xác nhận đã dọn
+                                </button>
+                            </form>
+                        }
+                        else if (item.TinhTrangVeSinh == "Đã dọn" ||
+                                 item.TinhTrangVeSinh == "Sạch")
+                        {
+                            <form asp-action="XacNhanDaKiemTra"
+                                  asp-route-id="@item.MaPhong"
+                                  method="post">
+
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit" class="room-clean-btn">
+                                    <i class="bi bi-shield-check me-1"></i>
+                                    Xác nhận đã kiểm tra
+                                </button>
+                            </form>
+                        }
+
+                    </div>
+                </article>
+            }
+
+        </div>
+    }
+    else
+    {
+        <div class="empty-room-list">
+            <div class="empty-room-icon">
+                <i class="bi bi-door-closed"></i>
+            </div>
+
+            <h5>Không tìm thấy phòng</h5>
+
+            <p>
+                Thử thay đổi từ khóa tìm kiếm hoặc điều kiện lọc để xem kết quả.
+            </p>
+        </div>
+    }
+
+</div>

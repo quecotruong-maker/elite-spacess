@@ -1,0 +1,201 @@
+@model QuanLyKhachSan.Models.DatPhong
+
+@{
+    ViewData["Title"] = "Chi tiết đặt phòng";
+
+    var soDem = Math.Max(1, (Model.NgayDi.Date - Model.NgayDen.Date).Days);
+    var giaHienTai = Model.Phong?.LoaiPhong?.GiaMotDem ?? 0;
+
+    var lichSu = ViewBag.LichSuDoiPhong as List<QuanLyKhachSan.Models.LichSuDatPhong>
+                 ?? new List<QuanLyKhachSan.Models.LichSuDatPhong>();
+
+    lichSu = lichSu
+        .OrderBy(x => x.NgayBatDau)
+        .ThenBy(x => x.ThoiGianThayDoi)
+        .ToList();
+
+    decimal tienDuKien = 0;
+    var ngayBatDauTinhTien = Model.NgayDen.Date;
+    var giaDangApDung = lichSu.FirstOrDefault()?.GiaPhongCu ?? giaHienTai;
+
+    foreach (var ls in lichSu)
+    {
+        var ngayChuyen = ls.NgayBatDau.Date;
+
+        if (ngayChuyen < Model.NgayDen.Date)
+            ngayChuyen = Model.NgayDen.Date;
+
+        if (ngayChuyen > Model.NgayDi.Date)
+            ngayChuyen = Model.NgayDi.Date;
+
+        var soDemPhongCu = Math.Max(0, (ngayChuyen - ngayBatDauTinhTien).Days);
+
+        tienDuKien += soDemPhongCu * giaDangApDung;
+
+        ngayBatDauTinhTien = ngayChuyen;
+        giaDangApDung = ls.GiaPhongMoi;
+    }
+
+    var soDemPhongCuoi = Math.Max(0, (Model.NgayDi.Date - ngayBatDauTinhTien).Days);
+    tienDuKien += soDemPhongCuoi * giaDangApDung;
+
+    var coTheDoiPhong = Model.TrangThai == "Đã đặt"
+                        || Model.TrangThai == "Đã check-in";
+}
+
+<style>
+    .booking-detail-page {
+        padding: 20px 0 40px;
+    }
+
+    .booking-detail-card {
+        background: #fff;
+        border: 1px solid #e2eaf0;
+        border-radius: 14px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(25, 65, 85, .06);
+    }
+
+    .booking-detail-title {
+        color: #183b4e;
+        font-weight: 800;
+        margin-bottom: 18px;
+    }
+
+    .booking-detail-page dt {
+        color: #526b79;
+        font-weight: 700;
+        margin-bottom: 12px;
+    }
+
+    .booking-detail-page dd {
+        color: #243d4b;
+        margin-bottom: 12px;
+    }
+
+    .history-title {
+        color: #183b4e;
+        font-size: 20px;
+        font-weight: 800;
+        margin: 30px 0 15px;
+    }
+
+    .history-table th {
+        background: #edf5f8;
+        color: #25495b;
+        white-space: nowrap;
+    }
+
+    .history-table td {
+        vertical-align: middle;
+    }
+</style>
+
+<div class="booking-detail-page">
+    <div class="booking-detail-card">
+
+        <h2 class="booking-detail-title">Chi tiết đặt phòng</h2>
+        <hr />
+
+        <dl class="row">
+            <dt class="col-sm-3">Khách hàng</dt>
+            <dd class="col-sm-9">@Model.KhachHang?.HoTen</dd>
+
+            <dt class="col-sm-3">Số điện thoại</dt>
+            <dd class="col-sm-9">@Model.KhachHang?.SoDienThoai</dd>
+
+            <dt class="col-sm-3">Phòng hiện tại</dt>
+            <dd class="col-sm-9">
+                @Model.Phong?.SoPhong (@Model.Phong?.LoaiPhong?.TenLoai)
+            </dd>
+
+            <dt class="col-sm-3">Ngày đến</dt>
+            <dd class="col-sm-9">@Model.NgayDen.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-3">Ngày đi</dt>
+            <dd class="col-sm-9">@Model.NgayDi.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-3">Số đêm</dt>
+            <dd class="col-sm-9">@soDem</dd>
+
+            <dt class="col-sm-3">Giá phòng hiện tại / đêm</dt>
+            <dd class="col-sm-9">@giaHienTai.ToString("N0") đ</dd>
+
+            <dt class="col-sm-3">Tổng tiền dự kiến</dt>
+            <dd class="col-sm-9">
+                <strong class="text-primary">@tienDuKien.ToString("N0") đ</strong>
+            </dd>
+
+            <dt class="col-sm-3">Trạng thái</dt>
+            <dd class="col-sm-9">@Model.TrangThai</dd>
+
+            <dt class="col-sm-3">Ghi chú</dt>
+            <dd class="col-sm-9">@Model.GhiChu</dd>
+        </dl>
+
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <a asp-action="Edit"
+               asp-route-id="@Model.MaDatPhong"
+               class="btn btn-outline-primary">
+                Sửa đặt phòng
+            </a>
+
+            @if (coTheDoiPhong)
+            {
+                <a asp-action="DoiPhong"
+                   asp-route-id="@Model.MaDatPhong"
+                   class="btn btn-primary">
+                    Đổi phòng
+                </a>
+            }
+
+            <a asp-action="Index" class="btn btn-secondary">
+                Quay lại danh sách
+            </a>
+        </div>
+
+        <h3 class="history-title">Lịch sử đổi phòng</h3>
+
+        @if (lichSu.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover history-table">
+                    <thead>
+                        <tr>
+                            <th>Phòng cũ</th>
+                            <th>Phòng mới</th>
+                            <th>Ngày bắt đầu</th>
+                            <th>Giá phòng cũ</th>
+                            <th>Giá phòng mới</th>
+                            <th>Người thực hiện</th>
+                            <th>Lý do</th>
+                            <th>Thời gian ghi nhận</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ls in lichSu)
+                        {
+                            <tr>
+                                <td>@ls.SoPhongCu</td>
+                                <td>@ls.SoPhongMoi</td>
+                                <td>@ls.NgayBatDau.ToString("dd/MM/yyyy")</td>
+                                <td>@ls.GiaPhongCu.ToString("N0") đ</td>
+                                <td>@ls.GiaPhongMoi.ToString("N0") đ</td>
+                                <td>@ls.TenNguoiThucHien</td>
+                                <td>@(string.IsNullOrWhiteSpace(ls.LyDo) ? "Không có" : ls.LyDo)</td>
+                                <td>@ls.ThoiGianThayDoi.ToString("dd/MM/yyyy HH:mm")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">
+                Đặt phòng này chưa có lịch sử đổi phòng.
+            </p>
+        }
+
+    </div>
+</div>

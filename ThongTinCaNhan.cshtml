@@ -1,0 +1,84 @@
+﻿@model QuanLyKhachSan.Models.KhachHang
+
+@{
+    ViewData["Title"] = "Thông tin cá nhân";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4">
+
+                    <h2 class="mb-2">Thông tin cá nhân</h2>
+
+                    <p class="text-muted mb-4">
+                        Bạn có thể xem và cập nhật thông tin hồ sơ của mình.
+                    </p>
+
+                    @if (TempData["ThongBao"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["ThongBao"]
+                        </div>
+                    }
+
+                    <form asp-controller="Home"
+                          asp-action="CapNhatThongTinCaNhan"
+                          method="post">
+
+                        <div asp-validation-summary="All"
+                             class="text-danger mb-3"></div>
+
+                        <div class="mb-3">
+                            <label asp-for="HoTen" class="form-label fw-semibold"></label>
+                            <input asp-for="HoTen" class="form-control" />
+                            <span asp-validation-for="HoTen" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="CCCD" class="form-label fw-semibold"></label>
+                            <input asp-for="CCCD" class="form-control" />
+                            <span asp-validation-for="CCCD" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="SoDienThoai" class="form-label fw-semibold"></label>
+                            <input asp-for="SoDienThoai" class="form-control" />
+                            <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label fw-semibold"></label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                            <small class="text-muted">
+                                Email mới cũng sẽ được sử dụng làm tên đăng nhập.
+                            </small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="DiaChi" class="form-label fw-semibold"></label>
+                            <input asp-for="DiaChi" class="form-control" />
+                            <span asp-validation-for="DiaChi" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                Lưu thay đổi
+                            </button>
+
+                            <a asp-controller="Home"
+                               asp-action="Index"
+                               class="btn btn-outline-secondary">
+                                Về trang chủ
+                            </a>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

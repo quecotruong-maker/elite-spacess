@@ -1,0 +1,449 @@
+@model IEnumerable<QuanLyKhachSan.Models.DatPhong>
+
+@{
+    ViewData["Title"] = "Đặt phòng";
+    string tuKhoaLoc = ViewBag.TuKhoa ?? "";
+    string trangThaiLoc = ViewBag.TrangThai ?? "";
+}
+
+<style>
+    .booking-confirm-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(15, 29, 38, .58);
+        backdrop-filter: blur(4px);
+    }
+
+        .booking-confirm-overlay.show {
+            display: flex;
+            animation: bookingFadeIn .2s ease;
+        }
+
+    .booking-confirm-dialog {
+        width: 100%;
+        max-width: 460px;
+        padding: 32px;
+        border-radius: 20px;
+        background: #fff;
+        text-align: center;
+        box-shadow: 0 18px 55px rgba(0, 0, 0, .22);
+        animation: bookingDialogIn .22s ease;
+    }
+
+    .booking-confirm-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 76px;
+        height: 76px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        color: #c58a27;
+        background: #fff4df;
+        font-size: 34px;
+    }
+
+    .booking-confirm-dialog h4 {
+        margin-bottom: 10px;
+        color: #263b45;
+        font-weight: 700;
+    }
+
+    .booking-confirm-dialog p {
+        margin-bottom: 26px;
+        color: #71818a;
+        line-height: 1.6;
+    }
+
+    .booking-confirm-actions {
+        display: flex;
+        gap: 12px;
+    }
+
+        .booking-confirm-actions button {
+            flex: 1;
+            min-height: 48px;
+            border: 0;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: .2s ease;
+        }
+
+    .booking-confirm-cancel {
+        color: #52636d;
+        background: #edf2f5;
+    }
+
+        .booking-confirm-cancel:hover {
+            background: #dce5ea;
+        }
+
+    .booking-confirm-accept {
+        color: #fff;
+        background: #0b988f;
+    }
+
+        .booking-confirm-accept:hover {
+            background: #087f78;
+        }
+
+        .booking-confirm-accept:disabled {
+            opacity: .7;
+            cursor: not-allowed;
+        }
+
+    @@keyframes bookingFadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes bookingDialogIn {
+        from {
+            opacity: 0;
+            transform: translateY(12px) scale(.97);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .booking-confirm-dialog {
+            padding: 26px 20px;
+        }
+
+        .booking-confirm-actions {
+            flex-direction: column-reverse;
+        }
+    }
+</style>
+
+<h1>Danh sách đặt phòng</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Đặt phòng mới</a>
+
+    <a asp-action="LichDatPhong" class="btn btn-info text-white">
+        <i class="bi bi-calendar3"></i> Lịch đặt phòng
+    </a>
+
+    <a asp-controller="Phongs"
+       asp-action="TimPhongTrong"
+       class="btn btn-outline-success">
+        Tìm phòng trống theo ngày
+    </a>
+</p>
+
+<form asp-action="Index" method="get" class="row g-2 mb-3">
+    <div class="col-md-4">
+        <input type="text" name="tuKhoa" value="@tuKhoaLoc"
+               class="form-control"
+               placeholder="Tên khách, số điện thoại hoặc số phòng..." />
+    </div>
+
+    <div class="col-md-3">
+        <select name="trangThai" class="form-select">
+            <option value="">Tất cả trạng thái</option>
+
+            @foreach (var tt in new[] {
+                "Đã đặt", "Đã check-in", "Đã check-out", "Đã hủy"
+            })
+            {
+                <option value="@tt" selected="@(trangThaiLoc == tt)">
+                    @tt
+                </option>
+            }
+        </select>
+    </div>
+
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-primary">
+            Lọc
+        </button>
+
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            Xóa lọc
+        </a>
+    </div>
+</form>
+
+<p class="text-muted">Tìm thấy @Model.Count() đơn.</p>
+
+<table class="table align-middle">
+    <thead>
+        <tr>
+            <th>Mã đặt phòng</th>
+            <th>Mã phòng</th>
+            <th>Khách hàng</th>
+            <th>Phòng</th>
+            <th>Ngày đến</th>
+            <th>Ngày đi</th>
+            <th>Số đêm</th>
+            <th>Tiền dự kiến</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var soDem = (item.NgayDi.Date - item.NgayDen.Date).Days;
+            var tien = soDem * (item.Phong?.LoaiPhong?.GiaMotDem ?? 0);
+
+            <tr>
+                <td>@item.MaDatPhong</td>
+                <td>@item.MaPhong</td>
+                <td>@item.KhachHang?.HoTen</td>
+                <td>@item.Phong?.SoPhong - @item.Phong?.LoaiPhong?.TenLoai</td>
+                <td>@item.NgayDen.ToString("dd/MM/yyyy")</td>
+                <td>@item.NgayDi.ToString("dd/MM/yyyy")</td>
+                <td>@soDem</td>
+                <td>@tien.ToString("N0") đ</td>
+                <td>@item.TrangThai</td>
+
+                <td>
+                    @if (item.TrangThai == "Đã đặt")
+                    {
+                        <form asp-action="CheckIn"
+                              asp-route-id="@item.MaDatPhong"
+                              method="post"
+                              class="d-inline">
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-success">
+                                Check-in
+                            </button>
+                        </form>
+
+                        <form asp-action="Huy"
+                              asp-route-id="@item.MaDatPhong"
+                              method="post"
+                              class="needs-confirmation d-inline"
+                              data-confirm-title="Xác nhận hủy đặt phòng"
+                              data-confirm-message="Bạn có chắc chắn muốn hủy đơn đặt phòng này không?">
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-danger">
+                                Hủy
+                            </button>
+                        </form>
+                    }
+                    else if (item.TrangThai == "Đã check-in")
+                    {
+                        <form asp-action="CheckOut"
+                              asp-route-id="@item.MaDatPhong"
+                              method="post"
+                              class="needs-confirmation d-inline"
+                              data-confirm-title="Xác nhận check-out"
+                              data-confirm-message="Bạn muốn check-out và lập hóa đơn cho đơn đặt phòng này?">
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-warning">
+                                Check-out
+                            </button>
+                        </form>
+                    }
+                </td>
+
+                <td>
+                    @if (item.TrangThai == "Đã đặt")
+                    {
+                        <a asp-action="Edit"
+                           asp-route-id="@item.MaDatPhong">
+                            Sửa
+                        </a>
+                        <span>|</span>
+                    }
+
+                    |
+
+                    <a asp-action="Details"
+                       asp-route-id="@item.MaDatPhong">
+                        Chi tiết
+                    </a>
+
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <span>|</span>
+
+                        <a asp-action="Delete"
+                           asp-route-id="@item.MaDatPhong">
+                            Xóa
+                        </a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- HỘP THOẠI XÁC NHẬN -->
+<div class="booking-confirm-overlay"
+     id="bookingConfirmModal"
+     aria-hidden="true">
+
+    <div class="booking-confirm-dialog"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="bookingConfirmTitle"
+         aria-describedby="bookingConfirmMessage">
+
+        <div class="booking-confirm-icon" aria-hidden="true">
+            <svg viewBox="0 0 48 48"
+                 width="38"
+                 height="38"
+                 xmlns="http://www.w3.org/2000/svg">
+
+                <circle cx="24" cy="24" r="19"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="3.5" />
+
+                <path d="M24 14.5 V25"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="3.5"
+                      stroke-linecap="round" />
+
+                <circle cx="24" cy="32" r="2.2"
+                        fill="currentColor" />
+            </svg>
+        </div>
+
+        <h4 id="bookingConfirmTitle">
+            Xác nhận thao tác
+        </h4>
+
+        <p id="bookingConfirmMessage">
+            Bạn có chắc chắn muốn thực hiện thao tác này không?
+        </p>
+
+        <div class="booking-confirm-actions">
+
+            <button type="button"
+                    class="booking-confirm-cancel"
+                    id="bookingConfirmCancel">
+                Hủy
+            </button>
+
+            <button type="button"
+                    class="booking-confirm-accept"
+                    id="bookingConfirmAccept">
+                Xác nhận
+            </button>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const modal = document.getElementById("bookingConfirmModal");
+        const title = document.getElementById("bookingConfirmTitle");
+        const message = document.getElementById("bookingConfirmMessage");
+
+        const cancelButton = document.getElementById("bookingConfirmCancel");
+        const acceptButton = document.getElementById("bookingConfirmAccept");
+
+        let pendingForm = null;
+
+        // Bắt sự kiện xác nhận của các form
+        document.querySelectorAll("form.needs-confirmation").forEach(function (form) {
+
+            form.addEventListener("submit", function (event) {
+
+                if (form.dataset.confirmed === "true") {
+                    form.dataset.confirmed = "false";
+                    return;
+                }
+
+                event.preventDefault();
+
+                pendingForm = form;
+
+                title.textContent =
+                    form.dataset.confirmTitle || "Xác nhận thao tác";
+
+                message.textContent =
+                    form.dataset.confirmMessage || "Bạn có chắc chắn muốn tiếp tục?";
+
+                modal.classList.add("show");
+                modal.setAttribute("aria-hidden", "false");
+
+                acceptButton.focus();
+            });
+
+        });
+
+        // Đóng modal
+        function closeModal() {
+
+            modal.classList.remove("show");
+            modal.setAttribute("aria-hidden", "true");
+
+            pendingForm = null;
+        }
+
+        // Nút Hủy
+        cancelButton.addEventListener("click", function () {
+            closeModal();
+        });
+
+        // Nút Xác nhận
+        acceptButton.addEventListener("click", function () {
+
+            if (!pendingForm) return;
+
+            const form = pendingForm;
+
+            form.dataset.confirmed = "true";
+
+            acceptButton.disabled = true;
+            acceptButton.textContent = "Đang xử lý...";
+
+            form.requestSubmit();
+        });
+
+        // Bấm ra ngoài modal
+        modal.addEventListener("click", function (event) {
+
+            if (event.target === modal) {
+                closeModal();
+            }
+
+        });
+
+        // Nhấn ESC để đóng
+        document.addEventListener("keydown", function (event) {
+
+            if (event.key === "Escape" && modal.classList.contains("show")) {
+                closeModal();
+            }
+
+        });
+
+        // Khôi phục nút khi quay lại trang
+        window.addEventListener("pageshow", function () {
+
+            acceptButton.disabled = false;
+            acceptButton.textContent = "Xác nhận";
+
+        });
+
+    });
+</script>

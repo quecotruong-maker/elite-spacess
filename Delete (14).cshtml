@@ -1,0 +1,30 @@
+@model QuanLyKhachSan.Models.LoaiPhong
+
+@{
+    ViewData["Title"] = "Xóa loại phòng";
+}
+
+<h1>Xóa loại phòng</h1>
+
+<h3 class="text-danger">Bạn có chắc muốn xóa loại phòng này không?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.TenLoai)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.TenLoai)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.GiaMotDem)</dt>
+        <dd class="col-sm-9">@Model.GiaMotDem.ToString("N0") đ</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.SoNguoiToiDa)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.SoNguoiToiDa)</dd>
+
+        <dt class="col-sm-3">@Html.DisplayNameFor(model => model.MoTa)</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.MoTa)</dd>
+    </dl>
+
+    <form asp-action="Delete" asp-route-id="@Model.MaLoaiPhong" method="post">
+        <input type="submit" value="Xóa" class="btn btn-danger" />
+        <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+    </form>
+</div>

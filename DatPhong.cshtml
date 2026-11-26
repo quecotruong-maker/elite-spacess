@@ -1,0 +1,92 @@
+﻿@{
+    ViewData["Title"] = "Đặt phòng";
+
+    var giaMotDem = ViewBag.GiaMotDem ?? 0;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Thông tin đặt phòng</h3>
+                </div>
+
+                <div class="card-body">
+                    <h5 class="text-primary mb-3">
+                        Phòng @ViewBag.SoPhong
+                    </h5>
+
+                    <p>
+                        <strong>Loại phòng:</strong>
+                        @ViewBag.TenLoai
+                    </p>
+
+                    <p>
+                        <strong>Giá mỗi đêm:</strong>
+                        @string.Format("{0:N0} đ", giaMotDem)
+                    </p>
+
+                    <p>
+                        <strong>Số người tối đa:</strong>
+                        @ViewBag.SoNguoiToiDa người
+                    </p>
+
+                    <hr />
+
+                    <form asp-controller="DonDatCuaKhach"
+                          asp-action="DatPhong"
+                          method="post">
+
+                        <input type="hidden"
+                               name="MaPhong"
+                               value="@ViewBag.MaPhong" />
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Ngày đến
+                            </label>
+                            <input type="date"
+                                   name="NgayDen"
+                                   class="form-control"
+                                   min="@DateTime.Today.ToString("yyyy-MM-dd")"
+                                   required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Ngày đi
+                            </label>
+                            <input type="date"
+                                   name="NgayDi"
+                                   class="form-control"
+                                   min="@DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")"
+                                   required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                Ghi chú
+                            </label>
+                            <textarea name="GhiChu"
+                                      class="form-control"
+                                      rows="3"
+                                      placeholder="Yêu cầu thêm của bạn (nếu có)"></textarea>
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary w-100">
+                            Xác nhận đặt phòng
+                        </button>
+
+                        <a asp-controller="Home"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary w-100 mt-2">
+                            Quay lại danh sách phòng
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

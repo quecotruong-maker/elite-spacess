@@ -1,0 +1,63 @@
+@model QuanLyKhachSan.Models.DatPhong
+
+@{
+    ViewData["Title"] = "Sửa đặt phòng";
+}
+
+<h1>Sửa đặt phòng</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-5">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="MaDatPhong" />
+            <input type="hidden" asp-for="TrangThai" />
+
+            <div class="mb-3">
+                <label asp-for="MaKhach" class="form-label"></label>
+                <select asp-for="MaKhach" class="form-select" asp-items="ViewBag.MaKhach"></select>
+                <span asp-validation-for="MaKhach" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="MaPhong" class="form-label"></label>
+                <select asp-for="MaPhong" class="form-select" asp-items="ViewBag.MaPhong"></select>
+                <span asp-validation-for="MaPhong" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="NgayDen" class="form-label"></label>
+                <input asp-for="NgayDen" class="form-control" />
+                <span asp-validation-for="NgayDen" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="NgayDi" class="form-label"></label>
+                <input asp-for="NgayDi" class="form-control" />
+                <span asp-validation-for="NgayDi" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Trạng thái</label>
+                <input type="text" class="form-control" value="@Model.TrangThai" readonly />
+                <div class="form-text">
+                    Muốn đổi trạng thái, dùng nút Check-in, Check-out hoặc Hủy ở trang danh sách đặt phòng.
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="GhiChu" class="form-label"></label>
+                <input asp-for="GhiChu" class="form-control" />
+                <span asp-validation-for="GhiChu" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Lưu</button>
+            <a asp-action="Index" class="btn btn-secondary">Quay lại</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,661 @@
+﻿@model IEnumerable<QuanLyKhachSan.Models.DatPhong>
+
+@{
+    ViewData["Title"] = "Phòng của tôi";
+
+    var thongBao = TempData["ThongBao"]?.ToString();
+    var loi = TempData["Loi"]?.ToString();
+}
+
+<style>
+    .custom-modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(20, 35, 45, 0.55);
+        backdrop-filter: blur(4px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        padding: 20px;
+    }
+
+        .custom-modal-overlay.show {
+            display: flex;
+            animation: fadeIn 0.2s ease;
+        }
+
+    .custom-modal {
+        background: #fff;
+        width: 100%;
+        max-width: 530px;
+        padding: 32px;
+        border-radius: 22px;
+        text-align: center;
+        box-shadow: 0 15px 50px rgba(0,0,0,0.2);
+        animation: modalIn 0.25s ease;
+    }
+
+        .custom-modal h4 {
+            font-weight: 700;
+            color: #263b45;
+            margin-bottom: 12px;
+        }
+
+        .custom-modal p {
+            color: #71818a;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+    .modal-icon {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+    }
+
+        .modal-icon.warning {
+            background: #fff3e3;
+            color: #263b45;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .modal-icon.warning svg {
+                display: block;
+                position: absolute;
+                width: 78px !important;
+                height: 78px !important;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                margin: 0;
+            }
+
+        .modal-icon.success {
+            background: #e8f8f1;
+            color: #16a477;
+        }
+
+    .modal-buttons {
+        display: flex;
+        gap: 14px;
+        margin-top: 28px;
+    }
+
+        .modal-buttons button {
+            flex: 1;
+            padding: 16px 10px;
+            border-radius: 13px;
+            border: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: 0.2s;
+        }
+
+    .btn-confirm-cancel {
+        background: #dc3545;
+        color: white;
+    }
+
+        .btn-confirm-cancel:hover {
+            background: #bb2d3b;
+        }
+
+        .btn-confirm-cancel:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+    .btn-go-back {
+        background: #edf2f5;
+        color: #52636d;
+    }
+
+        .btn-go-back:hover {
+            background: #dce5ea;
+        }
+
+    .btn-success-close {
+        width: 100%;
+        background: #0fa99f;
+        color: white;
+        padding: 15px;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 16px;
+        transition: 0.2s;
+    }
+
+        .btn-success-close:hover {
+            background: #098c84;
+        }
+
+    .success-circle {
+        width: 100px;
+        height: 100px;
+        margin: 0 auto 25px;
+        position: relative;
+    }
+
+        .success-circle svg {
+            width: 100px;
+            height: 100px;
+            transform: rotate(-90deg);
+        }
+
+        .success-circle circle {
+            fill: none;
+            stroke-width: 5;
+        }
+
+        .success-circle .circle-bg {
+            stroke: #e5f2ed;
+        }
+
+        .success-circle .circle-progress {
+            stroke: #16a477;
+            stroke-linecap: round;
+            stroke-dasharray: 220;
+            stroke-dashoffset: 220;
+            animation: circleCountdown 10s linear forwards;
+        }
+
+    .success-check {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .success-check svg {
+            width: 48px;
+            height: 48px;
+            transform: none;
+        }
+
+    @@keyframes circleCountdown {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes modalIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px) scale(0.96);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .custom-modal {
+            padding: 28px 20px;
+        }
+
+        .modal-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<h2 class="fw-bold mb-2">Phòng của tôi</h2>
+
+<p class="text-muted mb-4">
+    Danh sách các phòng bạn đã đặt tại khách sạn.
+</p>
+
+@if (!Model.Any())
+{
+    <div class="card border-0 shadow-sm p-5 text-center">
+        <div class="mb-3">
+            <i class="bi bi-calendar-x"
+               style="font-size: 45px; color: #8eb8c8;"></i>
+        </div>
+
+        <h5>Bạn chưa có phòng nào được đặt</h5>
+
+        <p class="text-muted">
+            Hãy khám phá các phòng và đặt phòng phù hợp với bạn.
+        </p>
+
+        <div>
+            <a asp-controller="Home"
+               asp-action="Index"
+               class="btn btn-primary">
+                Xem danh sách phòng
+            </a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+
+        @foreach (var item in Model)
+        {
+            <div class="col-12">
+                <div class="card border-0 shadow-sm overflow-hidden">
+
+                    <div class="row g-0">
+
+                        <div class="col-md-4">
+
+                            @if (!string.IsNullOrEmpty(item.Phong?.HinhAnh))
+                            {
+                                <img src="@item.Phong.HinhAnh"
+                                     class="w-100 h-100"
+                                     style="min-height:220px; object-fit:cover;"
+                                     alt="Ảnh phòng @item.Phong.SoPhong" />
+                            }
+                            else
+                            {
+                                <div class="d-flex align-items-center justify-content-center bg-light"
+                                     style="min-height:220px;">
+                                    <span class="text-muted">
+                                        Chưa có ảnh phòng
+                                    </span>
+                                </div>
+                            }
+
+                        </div>
+
+                        <div class="col-md-8">
+
+                            <div class="card-body p-4">
+
+                                <div class="d-flex justify-content-between flex-wrap gap-2">
+
+                                    <div>
+                                        <h4 class="fw-bold mb-1">
+                                            Phòng @item.Phong?.SoPhong
+                                        </h4>
+
+                                        <p class="text-muted mb-3">
+                                            @item.Phong?.LoaiPhong?.TenLoai
+                                        </p>
+                                    </div>
+
+                                    @if (item.TrangThai == "Chờ thanh toán cọc")
+                                    {
+                                        <span class="badge bg-warning text-dark align-self-start p-2">
+                                            Chờ thanh toán cọc
+                                        </span>
+                                    }
+                                    else if (item.TrangThai == "Đã đặt")
+                                    {
+                                        <span class="badge bg-primary align-self-start p-2">
+                                            Đã đặt
+                                        </span>
+                                    }
+                                    else if (item.TrangThai == "Đã check-in")
+                                    {
+                                        <span class="badge bg-success align-self-start p-2">
+                                            Đang lưu trú
+                                        </span>
+                                    }
+                                    else if (item.TrangThai == "Đã check-out")
+                                    {
+                                        <span class="badge bg-secondary align-self-start p-2">
+                                            Đã trả phòng
+                                        </span>
+                                    }
+                                    else if (item.TrangThai == "Đã hủy")
+                                    {
+                                        <span class="badge bg-danger align-self-start p-2">
+                                            Đã hủy
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary align-self-start p-2">
+                                            @item.TrangThai
+                                        </span>
+                                    }
+
+                                </div>
+
+                                <hr />
+
+                                <div class="row g-3">
+
+                                    <div class="col-sm-6">
+                                        <small class="text-muted">Số phòng</small>
+                                        <div class="fw-semibold">
+                                            @item.Phong?.SoPhong
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <small class="text-muted">Ngày nhận phòng</small>
+                                        <div class="fw-semibold">
+                                            @item.NgayDen.ToString("dd/MM/yyyy")
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <small class="text-muted">Ngày trả phòng</small>
+                                        <div class="fw-semibold">
+                                            @item.NgayDi.ToString("dd/MM/yyyy")
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-4">
+                                        <small class="text-muted">Số đêm</small>
+                                        <div class="fw-semibold">
+                                            @((item.NgayDi.Date - item.NgayDen.Date).Days) đêm
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <hr />
+
+                                <div class="d-flex flex-wrap gap-2">
+
+                                    <a asp-controller="DatPhongs"
+                                       asp-action="ChiTietCuaToi"
+                                       asp-route-id="@item.MaDatPhong"
+                                       class="btn btn-outline-primary">
+                                        Xem chi tiết
+                                    </a>
+
+                                    @if (item.TrangThai == "Chờ thanh toán cọc")
+                                    {
+                                        <a asp-controller="DatPhongs"
+                                           asp-action="ThanhToanCoc"
+                                           asp-route-id="@item.MaDatPhong"
+                                           class="btn btn-warning">
+                                            <i class="bi bi-qr-code me-1"></i>
+                                            Thanh toán tiền cọc
+                                        </a>
+                                    }
+
+                                    @if (item.TrangThai == "Đã đặt" ||
+                                         item.TrangThai == "Chờ thanh toán cọc")
+                                    {
+                                        <form class="form-huy-dat-phong"
+                                              asp-controller="DatPhongs"
+                                              asp-action="HuyCuaToi"
+                                              asp-route-id="@item.MaDatPhong"
+                                              method="post">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <button type="button"
+                                                    class="btn btn-outline-danger btn-mo-xac-nhan">
+                                                Hủy đặt phòng
+                                            </button>
+
+                                        </form>
+                                    }
+
+                                </div>
+
+                                @if (item.TrangThai == "Chờ thanh toán cọc")
+                                {
+                                    <div class="alert alert-warning mt-3 mb-0">
+                                        <i class="bi bi-info-circle me-1"></i>
+                                        Phòng đang được giữ tạm thời. Vui lòng hoàn tất thanh toán cọc mô phỏng để xác nhận đặt phòng.
+                                    </div>
+                                }
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        }
+
+    </div>
+}
+
+<!-- HỘP THOẠI XÁC NHẬN HỦY -->
+<div class="custom-modal-overlay" id="modalXacNhan">
+
+    <div class="custom-modal">
+
+        <div class="modal-icon warning">
+            <svg viewBox="0 0 100 100"
+                 xmlns="http://www.w3.org/2000/svg">
+
+                <circle cx="50" cy="50" r="43"
+                        fill="none"
+                        stroke="#263b45"
+                        stroke-width="7" />
+
+                <circle cx="34" cy="39" r="4.5"
+                        fill="#263b45" />
+
+                <circle cx="66" cy="39" r="4.5"
+                        fill="#263b45" />
+
+                <path d="M27 70 Q50 43 73 70"
+                      fill="none"
+                      stroke="#263b45"
+                      stroke-width="7"
+                      stroke-linecap="round" />
+            </svg>
+        </div>
+
+        <h4>Xác nhận hủy đặt phòng</h4>
+
+        <p>
+            Bạn có chắc chắn muốn hủy đặt phòng này không?
+            Thao tác này sẽ cập nhật trạng thái đơn đặt phòng.
+        </p>
+
+        <div class="modal-buttons">
+
+            <button type="button"
+                    class="btn-confirm-cancel"
+                    id="btnXacNhanHuy">
+                Xác nhận hủy
+            </button>
+
+            <button type="button"
+                    class="btn-go-back"
+                    id="btnQuayLai">
+                Quay lại
+            </button>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- HỘP THOẠI THÀNH CÔNG -->
+<div class="custom-modal-overlay" id="modalThanhCong">
+
+    <div class="custom-modal">
+
+        <div class="success-circle">
+
+            <svg viewBox="0 0 82 82">
+                <circle class="circle-bg"
+                        cx="41" cy="41" r="35" />
+
+                <circle class="circle-progress"
+                        cx="41" cy="41" r="35" />
+            </svg>
+
+            <div class="success-check">
+                <svg viewBox="0 0 48 48"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 25 L20 35 L39 14"
+                          fill="none"
+                          stroke="#16a477"
+                          stroke-width="5"
+                          stroke-linecap="round"
+                          stroke-linejoin="round" />
+                </svg>
+            </div>
+
+        </div>
+
+        <h4 style="color:#16a477;">
+            Thành công!
+        </h4>
+
+        <p id="noiDungThanhCong">
+            Bạn đã hủy đặt phòng thành công.
+        </p>
+
+        <button type="button"
+                class="btn-success-close"
+                id="btnDongThanhCong">
+            Đóng
+        </button>
+
+    </div>
+</div>
+
+<!-- HỘP THOẠI LỖI -->
+<div class="custom-modal-overlay" id="modalLoi">
+
+    <div class="custom-modal">
+
+        <div class="modal-icon warning">
+            <i class="bi bi-exclamation-circle-fill"></i>
+        </div>
+
+        <h4>Không thể thực hiện</h4>
+
+        <p>@loi</p>
+
+        <button type="button"
+                class="btn-success-close"
+                id="btnDongLoi">
+            Đóng
+        </button>
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const modalXacNhan = document.getElementById("modalXacNhan");
+        const modalThanhCong = document.getElementById("modalThanhCong");
+        const modalLoi = document.getElementById("modalLoi");
+
+        const btnXacNhanHuy = document.getElementById("btnXacNhanHuy");
+        const btnQuayLai = document.getElementById("btnQuayLai");
+        const btnDongThanhCong = document.getElementById("btnDongThanhCong");
+        const btnDongLoi = document.getElementById("btnDongLoi");
+
+        let formDangChon = null;
+        let timerThanhCong = null;
+
+        document.querySelectorAll(".btn-mo-xac-nhan").forEach(function (button) {
+
+            button.addEventListener("click", function () {
+
+                formDangChon = this.closest("form");
+
+                modalXacNhan.classList.add("show");
+
+            });
+
+        });
+
+        btnQuayLai.addEventListener("click", function () {
+
+            modalXacNhan.classList.remove("show");
+
+            formDangChon = null;
+
+        });
+
+        btnXacNhanHuy.addEventListener("click", function () {
+
+            if (formDangChon) {
+
+                btnXacNhanHuy.disabled = true;
+                btnXacNhanHuy.innerText = "Đang xử lý...";
+
+                formDangChon.submit();
+
+            }
+
+        });
+
+        function hienThongBaoThanhCong() {
+
+            modalThanhCong.classList.add("show");
+
+            timerThanhCong = setTimeout(function () {
+
+                dongThongBaoThanhCong();
+
+            }, 10000);
+
+        }
+
+        function dongThongBaoThanhCong() {
+
+            modalThanhCong.classList.remove("show");
+
+            if (timerThanhCong) {
+                clearTimeout(timerThanhCong);
+                timerThanhCong = null;
+            }
+
+        }
+
+        btnDongThanhCong.addEventListener("click", function () {
+
+            dongThongBaoThanhCong();
+
+        });
+
+        btnDongLoi.addEventListener("click", function () {
+
+            modalLoi.classList.remove("show");
+
+        });
+
+        modalXacNhan.addEventListener("click", function (e) {
+
+            if (e.target === modalXacNhan) {
+                modalXacNhan.classList.remove("show");
+                formDangChon = null;
+            }
+
+        });
+
+        const thongBao = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(thongBao));
+        const loi = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(loi));
+
+        if (thongBao) {
+            document.getElementById("noiDungThanhCong").textContent = thongBao;
+            hienThongBaoThanhCong();
+        }
+
+        if (loi) {
+            modalLoi.classList.add("show");
+        }
+
+    });
+</script>

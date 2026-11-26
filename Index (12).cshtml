@@ -1,0 +1,891 @@
+@model IEnumerable<QuanLyKhachSan.Models.KhachHang>
+
+@{
+    ViewData["Title"] = "Khách hàng";
+
+    var danhSachKhach = Model.ToList();
+    string tuKhoaLoc = ViewBag.TuKhoa ?? "";
+
+    int tongKhach = danhSachKhach.Count;
+    int coEmail = danhSachKhach.Count(x => !string.IsNullOrWhiteSpace(x.Email));
+    int coDienThoai = danhSachKhach.Count(x => !string.IsNullOrWhiteSpace(x.SoDienThoai));
+
+    var dangThueIds = ViewBag.DangThueIds as HashSet<int> ?? new HashSet<int>();
+    int tongDangThue = danhSachKhach.Count(x => dangThueIds.Contains(x.MaKhach));
+}
+
+<style>
+    .customer-page {
+        padding-bottom: 35px;
+        color: #263b4a;
+        animation: customerFadeIn .4s ease both;
+    }
+
+    .customer-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 30px;
+        margin-bottom: 24px;
+        border-radius: 20px;
+        color: white;
+        background: linear-gradient(120deg, #167f91, #35a6b3);
+        box-shadow: 0 10px 25px rgba(31, 135, 151, .17);
+    }
+
+        .customer-hero::after {
+            content: "";
+            position: absolute;
+            width: 230px;
+            height: 230px;
+            right: -65px;
+            top: -105px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.10);
+        }
+
+        .customer-hero h2 {
+            font-size: 27px;
+            font-weight: 750;
+            margin-bottom: 8px;
+        }
+
+        .customer-hero p {
+            margin: 0;
+            color: rgba(255,255,255,.85);
+            font-size: 14px;
+        }
+
+    .customer-add-btn {
+        position: relative;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 18px;
+        border-radius: 11px;
+        background: white;
+        color: #167f91;
+        font-weight: 700;
+        text-decoration: none;
+        transition: .2s ease;
+    }
+
+        .customer-add-btn:hover {
+            color: #116675;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,.12);
+        }
+
+    .customer-stats {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 22px;
+    }
+
+    .customer-stat {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        background: white;
+        border: 1px solid #e8eef2;
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(36, 67, 86, .04);
+    }
+
+    .customer-stat-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 48px;
+        height: 48px;
+        flex-shrink: 0;
+        border-radius: 14px;
+        color: #16899a;
+        background: #e8f6f7;
+        font-size: 21px;
+    }
+
+    .customer-stat-label {
+        color: #7b8c98;
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+
+    .customer-stat-value {
+        color: #263b4a;
+        font-size: 23px;
+        font-weight: 750;
+    }
+
+    .customer-panel {
+        overflow: hidden;
+        background: white;
+        border: 1px solid #e8eef2;
+        border-radius: 18px;
+        box-shadow: 0 5px 18px rgba(36, 67, 86, .045);
+    }
+
+    .customer-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        padding: 22px 24px;
+        border-bottom: 1px solid #edf1f4;
+    }
+
+    .customer-panel-title {
+        margin: 0 0 5px;
+        color: #263b4a;
+        font-size: 18px;
+        font-weight: 750;
+    }
+
+    .customer-panel-subtitle {
+        color: #8998a3;
+        font-size: 13px;
+    }
+
+    .customer-search {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-wrap: wrap;
+    }
+
+        .customer-search input {
+            width: 290px;
+            max-width: 100%;
+            min-height: 42px;
+            padding: 9px 13px;
+            border: 1px solid #dce6eb;
+            border-radius: 10px;
+            outline: none;
+            font-size: 13px;
+            transition: .2s;
+        }
+
+            .customer-search input:focus {
+                border-color: #36a1ad;
+                box-shadow: 0 0 0 3px rgba(54,161,173,.12);
+            }
+
+    .customer-search-btn,
+    .customer-reset-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 9px 15px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 650;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+    .customer-search-btn {
+        border: 0;
+        color: white;
+        background: #168b9a;
+    }
+
+        .customer-search-btn:hover {
+            color: white;
+            background: #117482;
+        }
+
+    .customer-reset-btn {
+        color: #647785;
+        background: #f1f5f7;
+    }
+
+        .customer-reset-btn:hover {
+            color: #263b4a;
+            background: #e5edf1;
+        }
+
+    .customer-table-wrap {
+        overflow-x: auto;
+    }
+
+    .customer-table {
+        width: 100%;
+        min-width: 1120px;
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+        .customer-table thead th {
+            padding: 15px 17px;
+            color: #718491;
+            background: #f7fafb;
+            border-bottom: 1px solid #eaf0f3;
+            font-size: 11px;
+            font-weight: 750;
+            letter-spacing: .5px;
+            white-space: nowrap;
+        }
+
+        .customer-table tbody td {
+            padding: 16px 17px;
+            color: #526574;
+            border-bottom: 1px solid #eef2f4;
+            font-size: 13px;
+            vertical-align: middle;
+        }
+
+        .customer-table tbody tr {
+            transition: background .2s;
+        }
+
+            .customer-table tbody tr:hover {
+                background: #f5fbfc;
+            }
+
+            .customer-table tbody tr:last-child td {
+                border-bottom: 0;
+            }
+
+    .customer-name {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        min-width: 160px;
+    }
+
+    .customer-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 37px;
+        height: 37px;
+        flex-shrink: 0;
+        border-radius: 12px;
+        color: #168596;
+        background: #e6f5f6;
+        font-weight: 750;
+        font-size: 14px;
+    }
+
+    .customer-name-text {
+        color: #2d4351;
+        font-weight: 700;
+    }
+
+    .customer-phone {
+        color: #405766;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .customer-muted {
+        color: #a0adb6;
+    }
+
+    .customer-status {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .customer-status-renting {
+        color: #16845b;
+        background: #e7f7ef;
+    }
+
+    .customer-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .customer-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 10px;
+        border: none;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 650;
+        text-decoration: none;
+        transition: .2s;
+        cursor: pointer;
+    }
+
+    .customer-edit {
+        color: #167f91;
+        background: #e9f6f7;
+    }
+
+        .customer-edit:hover {
+            color: white;
+            background: #168b9a;
+        }
+
+    .customer-detail {
+        color: #647785;
+        background: #f0f3f5;
+    }
+
+        .customer-detail:hover {
+            color: white;
+            background: #718491;
+        }
+
+    .customer-delete {
+        color: #d35c5c;
+        background: #fff0f0;
+    }
+
+        .customer-delete:hover {
+            color: white;
+            background: #d35c5c;
+        }
+
+    .customer-empty {
+        padding: 55px 20px !important;
+        text-align: center;
+    }
+
+    .customer-empty-icon {
+        margin-bottom: 12px;
+        color: #a8cbd0;
+        font-size: 38px;
+    }
+
+    .customer-empty h5 {
+        color: #405766;
+        font-size: 16px;
+        font-weight: 700;
+    }
+
+    .customer-empty p {
+        margin: 0;
+        color: #91a0aa;
+        font-size: 13px;
+    }
+
+    .customer-footer {
+        padding: 15px 22px;
+        color: #8797a2;
+        background: #fbfcfd;
+        border-top: 1px solid #edf1f4;
+        font-size: 12px;
+    }
+
+    /* Modal xác nhận xóa */
+    .customer-delete-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(13, 31, 42, .58);
+        backdrop-filter: blur(5px);
+    }
+
+        .customer-delete-modal.show {
+            display: flex;
+            animation: customerModalFade .2s ease;
+        }
+
+    .customer-delete-dialog {
+        width: 100%;
+        max-width: 430px;
+        padding: 32px;
+        background: #fff;
+        border-radius: 22px;
+        text-align: center;
+        box-shadow: 0 20px 65px rgba(0,0,0,.22);
+        animation: customerModalSlide .25s ease;
+    }
+
+    .customer-delete-icon {
+        width: 68px;
+        height: 68px;
+        margin: 0 auto 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #fff0f0;
+        color: #df4d58;
+    }
+
+        .customer-delete-icon svg {
+            width: 34px;
+            height: 34px;
+        }
+
+    .customer-delete-title {
+        color: #203f50;
+        font-size: 21px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .customer-delete-message {
+        color: #7b8d97;
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 25px;
+    }
+
+    .customer-delete-name {
+        color: #c93645;
+        font-weight: 800;
+    }
+
+    .customer-delete-buttons {
+        display: flex;
+        gap: 12px;
+    }
+
+        .customer-delete-buttons button {
+            flex: 1;
+            min-height: 45px;
+            border: none;
+            border-radius: 11px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+    .customer-delete-cancel {
+        color: #526b78;
+        background: #edf2f5;
+    }
+
+    .customer-delete-confirm {
+        color: #fff;
+        background: linear-gradient(135deg, #e45d65, #c93645);
+    }
+
+    .customer-delete-buttons button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 13px rgba(30,70,90,.12);
+    }
+
+    @@media (max-width: 992px) {
+        .customer-stats {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .customer-hero {
+            padding: 23px;
+        }
+
+            .customer-hero h2 {
+                font-size: 22px;
+            }
+
+        .customer-stats {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .customer-panel-header {
+            align-items: stretch;
+        }
+
+        .customer-search {
+            width: 100%;
+        }
+
+            .customer-search input {
+                width: 100%;
+                flex: 1 1 100%;
+            }
+
+        .customer-delete-dialog {
+            padding: 25px 20px;
+        }
+    }
+
+    @@keyframes customerFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes customerModalFade {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes customerModalSlide {
+        from {
+            opacity: 0;
+            transform: translateY(15px) scale(.97);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+</style>
+
+<div class="customer-page">
+
+    @if (TempData["ThongBaoLoi"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Không thể thực hiện!</strong>
+            @TempData["ThongBaoLoi"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ThongBaoThanhCong"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Thành công!</strong>
+            @TempData["ThongBaoThanhCong"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <div class="customer-hero">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h2>Quản lý khách hàng</h2>
+                <p>Quản lý thông tin hồ sơ và tình trạng lưu trú của khách hàng.</p>
+            </div>
+
+            <a asp-action="Create" class="customer-add-btn">
+                <span>＋</span> Thêm khách hàng
+            </a>
+        </div>
+    </div>
+
+    <div class="customer-stats">
+
+        <div class="customer-stat">
+            <div class="customer-stat-icon">♙</div>
+            <div>
+                <div class="customer-stat-label">Tổng số khách hàng</div>
+                <div class="customer-stat-value">@tongKhach</div>
+            </div>
+        </div>
+
+        <div class="customer-stat">
+            <div class="customer-stat-icon">✉</div>
+            <div>
+                <div class="customer-stat-label">Khách có email</div>
+                <div class="customer-stat-value">@coEmail</div>
+            </div>
+        </div>
+
+        <div class="customer-stat">
+            <div class="customer-stat-icon">☎</div>
+            <div>
+                <div class="customer-stat-label">Khách có số điện thoại</div>
+                <div class="customer-stat-value">@coDienThoai</div>
+            </div>
+        </div>
+
+        <div class="customer-stat">
+            <div class="customer-stat-icon">⌂</div>
+            <div>
+                <div class="customer-stat-label">Khách đang thuê phòng</div>
+                <div class="customer-stat-value">@tongDangThue</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="customer-panel">
+
+        <div class="customer-panel-header">
+            <div>
+                <h4 class="customer-panel-title">Danh sách khách hàng</h4>
+                <div class="customer-panel-subtitle">
+                    Thông tin liên hệ và tình trạng lưu trú
+                </div>
+            </div>
+
+            <form asp-action="Index" method="get" class="customer-search">
+                <input type="text"
+                       name="tuKhoa"
+                       value="@tuKhoaLoc"
+                       placeholder="Tìm tên, số điện thoại hoặc CCCD..." />
+
+                <button type="submit" class="customer-search-btn">
+                    Tìm kiếm
+                </button>
+
+                <a asp-action="Index" class="customer-reset-btn">
+                    Xóa lọc
+                </a>
+            </form>
+        </div>
+
+        <div class="customer-table-wrap">
+            <table class="customer-table">
+                <thead>
+                    <tr>
+                        <th>KHÁCH HÀNG</th>
+                        <th>CCCD</th>
+                        <th>SỐ ĐIỆN THOẠI</th>
+                        <th>EMAIL</th>
+                        <th>ĐỊA CHỈ</th>
+                        <th>TRẠNG THÁI</th>
+                        <th>THAO TÁC</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (danhSachKhach.Any())
+                    {
+                        @foreach (var item in danhSachKhach)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="customer-name">
+                                        <div class="customer-avatar">
+                                            @(string.IsNullOrWhiteSpace(item.HoTen)
+                                                ? "?"
+                                                : item.HoTen.Trim().Substring(0, 1).ToUpper())
+                                        </div>
+
+                                        <span class="customer-name-text">
+                                            @item.HoTen
+                                        </span>
+                                    </div>
+                                </td>
+
+                                <td>
+                                    @if (string.IsNullOrWhiteSpace(item.CCCD))
+                                    {
+                                        <span class="customer-muted">Chưa cập nhật</span>
+                                    }
+                                    else
+                                    {
+                                        @item.CCCD
+                                    }
+                                </td>
+
+                                <td>
+                                    <span class="customer-phone">
+                                        @(string.IsNullOrWhiteSpace(item.SoDienThoai)
+                                            ? "Chưa cập nhật"
+                                            : item.SoDienThoai)
+                                    </span>
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.Email)
+                                        ? "Chưa cập nhật"
+                                        : item.Email)
+                                </td>
+
+                                <td>
+                                    @(string.IsNullOrWhiteSpace(item.DiaChi)
+                                        ? "Chưa cập nhật"
+                                        : item.DiaChi)
+                                </td>
+
+                                <td>
+                                    @if (dangThueIds.Contains(item.MaKhach))
+                                    {
+                                        <span class="customer-status customer-status-renting">
+                                            ● Đang thuê phòng
+                                        </span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <div class="customer-actions">
+
+                                        <a asp-action="Edit"
+                                           asp-route-makhach="@item.MaKhach"
+                                           class="customer-action customer-edit">
+                                            Sửa
+                                        </a>
+
+                                        <a asp-action="Details"
+                                           asp-route-makhach="@item.MaKhach"
+                                           class="customer-action customer-detail">
+                                            Chi tiết
+                                        </a>
+
+                                        @if (User.IsInRole("Admin"))
+                                        {
+                                            <button type="button"
+                                                    class="customer-action customer-delete"
+                                                    data-customer-name="@item.HoTen"
+                                                    data-form-id="deleteCustomerForm_@item.MaKhach"
+                                                    onclick="openCustomerDeleteModal(this)">
+                                                Xóa
+                                            </button>
+
+                                            <form asp-action="Delete"
+                                                  asp-route-makhach="@item.MaKhach"
+                                                  method="post"
+                                                  id="deleteCustomerForm_@item.MaKhach"
+                                                  style="display:none;">
+                                                @Html.AntiForgeryToken()
+                                            </form>
+                                        }
+
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="customer-empty">
+                                <div class="customer-empty-icon">♙</div>
+                                <h5>Không tìm thấy khách hàng</h5>
+                                <p>Thử thay đổi từ khóa tìm kiếm hoặc xóa bộ lọc.</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="customer-footer">
+            Hiển thị <strong>@tongKhach</strong> khách hàng
+
+            @if (!string.IsNullOrWhiteSpace(tuKhoaLoc))
+            {
+                <span>
+                    — Kết quả tìm kiếm cho "<strong>@tuKhoaLoc</strong>"
+                </span>
+            }
+        </div>
+
+    </div>
+</div>
+
+@if (User.IsInRole("Admin"))
+{
+    <!-- Modal xác nhận xóa khách hàng -->
+    <div class="customer-delete-modal" id="customerDeleteModal">
+        <div class="customer-delete-dialog">
+
+            <div class="customer-delete-icon">
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path d="M12 9v4"></path>
+                    <path d="M12 17h.01"></path>
+                    <path d="M10.3 3.9 1.8 18.2A2 2 0 0 0 3.5 21h17a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0Z"></path>
+                </svg>
+            </div>
+
+            <h4 class="customer-delete-title">
+                Xác nhận xóa khách hàng?
+            </h4>
+
+            <p class="customer-delete-message">
+                Bạn có chắc chắn muốn xóa khách hàng
+                <span class="customer-delete-name" id="customerDeleteName"></span>?
+                <br />
+                Khách hàng đã có lịch sử đặt phòng sẽ không thể bị xóa.
+            </p>
+
+            <div class="customer-delete-buttons">
+                <button type="button"
+                        class="customer-delete-cancel"
+                        onclick="closeCustomerDeleteModal()">
+                    Hủy
+                </button>
+
+                <button type="button"
+                        class="customer-delete-confirm"
+                        onclick="confirmCustomerDelete()">
+                    Xác nhận xóa
+                </button>
+            </div>
+
+        </div>
+    </div>
+}
+
+<script>
+    let selectedCustomerFormId = null;
+
+    function openCustomerDeleteModal(button) {
+        const modal = document.getElementById("customerDeleteModal");
+        const customerName = document.getElementById("customerDeleteName");
+
+        if (!modal || !button) return;
+
+        selectedCustomerFormId = button.dataset.formId;
+        customerName.textContent = button.dataset.customerName || "khách hàng này";
+
+        modal.classList.add("show");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeCustomerDeleteModal() {
+        const modal = document.getElementById("customerDeleteModal");
+
+        if (!modal) return;
+
+        modal.classList.remove("show");
+        document.body.style.overflow = "";
+        selectedCustomerFormId = null;
+    }
+
+    function confirmCustomerDelete() {
+        if (!selectedCustomerFormId) return;
+
+        const form = document.getElementById(selectedCustomerFormId);
+
+        if (form) {
+            form.submit();
+        }
+    }
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            closeCustomerDeleteModal();
+        }
+    });
+
+    const customerDeleteModal = document.getElementById("customerDeleteModal");
+
+    if (customerDeleteModal) {
+        customerDeleteModal.addEventListener("click", function (event) {
+            if (event.target === this) {
+                closeCustomerDeleteModal();
+            }
+        });
+    }
+</script>

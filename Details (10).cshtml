@@ -1,0 +1,633 @@
+@model QuanLyKhachSan.Models.KhachHang
+
+@{
+    ViewData["Title"] = "Chi tiết khách hàng";
+
+    string giaTri(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "Chưa cập nhật" : value;
+    }
+
+    string chuCaiDau = string.IsNullOrWhiteSpace(Model.HoTen)
+        ? "?"
+        : Model.HoTen.Trim().Substring(0, 1).ToUpper();
+}
+
+<style>
+    .customer-detail-page {
+        padding-bottom: 35px;
+        color: #263b4a;
+        animation: customerDetailFade .4s ease both;
+    }
+
+    .customer-detail-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 28px 30px;
+        margin-bottom: 24px;
+        border-radius: 20px;
+        color: white;
+        background: linear-gradient(120deg, #167f91, #35a6b3);
+        box-shadow: 0 10px 25px rgba(31, 135, 151, .17);
+    }
+
+        .customer-detail-hero::after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            right: -65px;
+            top: -110px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.10);
+        }
+
+        .customer-detail-hero h2 {
+            position: relative;
+            z-index: 1;
+            margin-bottom: 7px;
+            font-size: 26px;
+            font-weight: 750;
+        }
+
+        .customer-detail-hero p {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            color: rgba(255,255,255,.85);
+            font-size: 14px;
+        }
+
+    .customer-detail-layout {
+        display: grid;
+        grid-template-columns: 290px minmax(0, 1fr);
+        gap: 20px;
+        align-items: start;
+    }
+
+    .customer-profile-card,
+    .customer-info-card {
+        overflow: hidden;
+        background: white;
+        border: 1px solid #e8eef2;
+        border-radius: 18px;
+        box-shadow: 0 5px 18px rgba(36, 67, 86, .045);
+    }
+
+    .customer-profile-card {
+        padding: 30px 22px;
+        text-align: center;
+    }
+
+    .customer-profile-avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 88px;
+        height: 88px;
+        margin: 0 auto 17px;
+        border-radius: 26px;
+        color: #168596;
+        background: #e6f5f6;
+        font-size: 34px;
+        font-weight: 800;
+        box-shadow: 0 5px 15px rgba(22, 133, 150, .10);
+    }
+
+    .customer-profile-name {
+        margin-bottom: 7px;
+        color: #263b4a;
+        font-size: 20px;
+        font-weight: 750;
+        overflow-wrap: anywhere;
+    }
+
+    .customer-profile-label {
+        color: #8797a2;
+        font-size: 13px;
+    }
+
+    .customer-profile-divider {
+        height: 1px;
+        margin: 23px 0;
+        background: #edf1f4;
+    }
+
+    .customer-profile-note {
+        color: #7e909c;
+        font-size: 12px;
+        line-height: 1.7;
+    }
+
+    .customer-info-header {
+        padding: 22px 24px;
+        border-bottom: 1px solid #edf1f4;
+    }
+
+        .customer-info-header h4 {
+            margin: 0 0 5px;
+            color: #263b4a;
+            font-size: 17px;
+            font-weight: 750;
+        }
+
+        .customer-info-header p {
+            margin: 0;
+            color: #8998a3;
+            font-size: 13px;
+        }
+
+    .customer-info-body {
+        padding: 8px 24px;
+    }
+
+    .customer-info-row {
+        display: grid;
+        grid-template-columns: 190px minmax(0, 1fr);
+        gap: 15px;
+        align-items: center;
+        padding: 19px 0;
+        border-bottom: 1px solid #eef2f4;
+    }
+
+        .customer-info-row:last-child {
+            border-bottom: 0;
+        }
+
+    .customer-info-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #82929d;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .customer-info-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        border-radius: 10px;
+        color: #168596;
+        background: #eaf6f7;
+        font-size: 15px;
+    }
+
+    .customer-info-value {
+        color: #354d5c;
+        font-size: 14px;
+        font-weight: 650;
+        overflow-wrap: anywhere;
+    }
+
+    .customer-info-missing {
+        color: #a0adb6;
+        font-weight: 400;
+        font-style: italic;
+    }
+
+    .customer-detail-actions {
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+    .customer-detail-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        padding: 10px 17px;
+        border: none;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: .2s ease;
+        cursor: pointer;
+    }
+
+        .customer-detail-btn:hover {
+            transform: translateY(-2px);
+        }
+
+    .customer-detail-edit {
+        color: white;
+        background: #168b9a;
+        box-shadow: 0 4px 12px rgba(22, 139, 154, .15);
+    }
+
+        .customer-detail-edit:hover {
+            color: white;
+            background: #117482;
+        }
+
+    .customer-detail-back {
+        color: #607482;
+        background: white;
+        border: 1px solid #dce6eb;
+    }
+
+        .customer-detail-back:hover {
+            color: #263b4a;
+            background: #f4f8fa;
+        }
+
+    .customer-detail-delete {
+        color: white;
+        background: linear-gradient(135deg, #e45d65, #c93645);
+    }
+
+        .customer-detail-delete:hover {
+            color: white;
+            background: #c93645;
+        }
+
+    /* Modal xác nhận xóa */
+    .customer-delete-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(13, 31, 42, .58);
+        backdrop-filter: blur(5px);
+    }
+
+        .customer-delete-modal.show {
+            display: flex;
+            animation: customerModalFade .2s ease;
+        }
+
+    .customer-delete-dialog {
+        width: 100%;
+        max-width: 430px;
+        padding: 32px;
+        background: #fff;
+        border-radius: 22px;
+        text-align: center;
+        box-shadow: 0 20px 65px rgba(0,0,0,.22);
+        animation: customerModalSlide .25s ease;
+    }
+
+    .customer-delete-icon {
+        width: 68px;
+        height: 68px;
+        margin: 0 auto 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #fff0f0;
+        color: #df4d58;
+    }
+
+        .customer-delete-icon svg {
+            width: 34px;
+            height: 34px;
+        }
+
+    .customer-delete-title {
+        color: #203f50;
+        font-size: 21px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .customer-delete-message {
+        color: #7b8d97;
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 25px;
+    }
+
+    .customer-delete-name {
+        color: #c93645;
+        font-weight: 800;
+    }
+
+    .customer-delete-buttons {
+        display: flex;
+        gap: 12px;
+    }
+
+        .customer-delete-buttons button {
+            flex: 1;
+            min-height: 45px;
+            border: none;
+            border-radius: 11px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+    .customer-delete-cancel {
+        color: #526b78;
+        background: #edf2f5;
+    }
+
+    .customer-delete-confirm {
+        color: #fff;
+        background: linear-gradient(135deg, #e45d65, #c93645);
+    }
+
+    .customer-delete-buttons button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 13px rgba(30,70,90,.12);
+    }
+
+    @@keyframes customerDetailFade {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes customerModalFade {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes customerModalSlide {
+        from {
+            opacity: 0;
+            transform: translateY(15px) scale(.97);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .customer-detail-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .customer-info-row {
+            grid-template-columns: 1fr;
+            gap: 8px;
+        }
+
+        .customer-detail-hero {
+            padding: 23px;
+        }
+
+            .customer-detail-hero h2 {
+                font-size: 22px;
+            }
+
+        .customer-detail-actions {
+            justify-content: stretch;
+        }
+
+        .customer-detail-btn {
+            flex: 1;
+        }
+
+        .customer-delete-dialog {
+            padding: 25px 20px;
+        }
+    }
+</style>
+
+<div class="customer-detail-page">
+
+    <div class="customer-detail-hero">
+        <h2>Chi tiết khách hàng</h2>
+        <p>Xem thông tin cá nhân và thông tin liên hệ của khách hàng.</p>
+    </div>
+
+    <div class="customer-detail-layout">
+
+        <div class="customer-profile-card">
+            <div class="customer-profile-avatar">
+                @chuCaiDau
+            </div>
+
+            <div class="customer-profile-name">
+                @Model.HoTen
+            </div>
+
+            <div class="customer-profile-label">
+                Hồ sơ khách hàng
+            </div>
+
+            <div class="customer-profile-divider"></div>
+
+            <div class="customer-profile-note">
+                Thông tin khách hàng được quản lý và lưu trữ trong hệ thống khách sạn.
+            </div>
+        </div>
+
+        <div class="customer-info-card">
+
+            <div class="customer-info-header">
+                <h4>Thông tin cá nhân</h4>
+                <p>Thông tin chi tiết của khách hàng</p>
+            </div>
+
+            <div class="customer-info-body">
+
+                <div class="customer-info-row">
+                    <div class="customer-info-label">
+                        <span class="customer-info-icon">♙</span>
+                        Họ và tên
+                    </div>
+                    <div class="customer-info-value">
+                        @giaTri(Model.HoTen)
+                    </div>
+                </div>
+
+                <div class="customer-info-row">
+                    <div class="customer-info-label">
+                        <span class="customer-info-icon">▤</span>
+                        Số CCCD
+                    </div>
+                    <div class="customer-info-value @(string.IsNullOrWhiteSpace(Model.CCCD) ? "customer-info-missing" : "")">
+                        @giaTri(Model.CCCD)
+                    </div>
+                </div>
+
+                <div class="customer-info-row">
+                    <div class="customer-info-label">
+                        <span class="customer-info-icon">☎</span>
+                        Số điện thoại
+                    </div>
+                    <div class="customer-info-value @(string.IsNullOrWhiteSpace(Model.SoDienThoai) ? "customer-info-missing" : "")">
+                        @giaTri(Model.SoDienThoai)
+                    </div>
+                </div>
+
+                <div class="customer-info-row">
+                    <div class="customer-info-label">
+                        <span class="customer-info-icon">✉</span>
+                        Email
+                    </div>
+                    <div class="customer-info-value @(string.IsNullOrWhiteSpace(Model.Email) ? "customer-info-missing" : "")">
+                        @giaTri(Model.Email)
+                    </div>
+                </div>
+
+                <div class="customer-info-row">
+                    <div class="customer-info-label">
+                        <span class="customer-info-icon">⌖</span>
+                        Địa chỉ
+                    </div>
+                    <div class="customer-info-value @(string.IsNullOrWhiteSpace(Model.DiaChi) ? "customer-info-missing" : "")">
+                        @giaTri(Model.DiaChi)
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <div class="customer-detail-actions">
+
+        <a asp-action="Index" class="customer-detail-btn customer-detail-back">
+            ← Quay lại danh sách
+        </a>
+
+        <a asp-action="Edit"
+           asp-route-makhach="@Model.MaKhach"
+           class="customer-detail-btn customer-detail-edit">
+            ✎ Chỉnh sửa thông tin
+        </a>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <button type="button"
+                    class="customer-detail-btn customer-detail-delete"
+                    onclick="openCustomerDeleteModal()">
+                <i class="bi bi-trash"></i>
+                Xóa khách hàng
+            </button>
+        }
+
+    </div>
+
+</div>
+
+@if (User.IsInRole("Admin"))
+{
+    <!-- Modal xác nhận xóa -->
+    <div class="customer-delete-modal" id="customerDeleteModal">
+        <div class="customer-delete-dialog">
+
+            <div class="customer-delete-icon">
+                <svg viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.8"
+                     stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path d="M12 9v4"></path>
+                    <path d="M12 17h.01"></path>
+                    <path d="M10.3 3.9 1.8 18.2A2 2 0 0 0 3.5 21h17a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0Z"></path>
+                </svg>
+            </div>
+
+            <h4 class="customer-delete-title">
+                Xác nhận xóa khách hàng?
+            </h4>
+
+            <p class="customer-delete-message">
+                Bạn có chắc chắn muốn xóa khách hàng
+                <span class="customer-delete-name">@Model.HoTen</span>?
+                <br />
+                Khách hàng đã có lịch sử đặt phòng sẽ không thể bị xóa.
+            </p>
+
+            <div class="customer-delete-buttons">
+                <button type="button"
+                        class="customer-delete-cancel"
+                        onclick="closeCustomerDeleteModal()">
+                    Hủy
+                </button>
+
+                <button type="button"
+                        class="customer-delete-confirm"
+                        onclick="confirmCustomerDelete()">
+                    Xác nhận xóa
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <form asp-action="Delete"
+          asp-route-makhach="@Model.MaKhach"
+          method="post"
+          id="customerDeleteForm"
+          style="display:none;">
+
+        @Html.AntiForgeryToken()
+
+    </form>
+}
+
+<script>
+    function openCustomerDeleteModal() {
+        const modal = document.getElementById("customerDeleteModal");
+
+        if (!modal) return;
+
+        modal.classList.add("show");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeCustomerDeleteModal() {
+        const modal = document.getElementById("customerDeleteModal");
+
+        if (!modal) return;
+
+        modal.classList.remove("show");
+        document.body.style.overflow = "";
+    }
+
+    function confirmCustomerDelete() {
+        const form = document.getElementById("customerDeleteForm");
+
+        if (form) {
+            form.submit();
+        }
+    }
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            closeCustomerDeleteModal();
+        }
+    });
+
+    const customerModal = document.getElementById("customerDeleteModal");
+
+    if (customerModal) {
+        customerModal.addEventListener("click", function (event) {
+            if (event.target === this) {
+                closeCustomerDeleteModal();
+            }
+        });
+    }
+</script>

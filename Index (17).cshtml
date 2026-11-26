@@ -1,0 +1,439 @@
+@model IEnumerable<QuanLyKhachSan.Models.LoaiPhong>
+
+@{
+    ViewData["Title"] = "Loại phòng";
+
+    var danhSachLoai = Model.ToList();
+    var tongLoai = danhSachLoai.Count;
+    var tongPhong = danhSachLoai.Sum(x => x.DanhSachPhong?.Count ?? 0);
+    var giaTrungBinh = tongLoai > 0
+        ? danhSachLoai.Average(x => x.GiaMotDem)
+        : 0;
+}
+
+<style>
+    .type-page {
+        padding: 10px 0 35px;
+        animation: typeFadeIn .45s ease;
+    }
+
+    .type-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .type-title {
+        color: #183b4e;
+        font-size: 27px;
+        font-weight: 800;
+        margin-bottom: 7px;
+    }
+
+    .type-subtitle {
+        color: #82939e;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .type-add-btn {
+        color: #fff;
+        background: linear-gradient(135deg, #0799a8, #087c91);
+        border: none;
+        border-radius: 11px;
+        padding: 12px 19px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all .25s ease;
+    }
+
+        .type-add-btn:hover {
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(8, 124, 145, .2);
+        }
+
+    .type-stat-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .type-stat-card {
+        background: #fff;
+        border: 1px solid #e8eef2;
+        border-radius: 17px;
+        padding: 21px;
+        box-shadow: 0 6px 22px rgba(32, 71, 91, .045);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        transition: transform .25s ease;
+    }
+
+        .type-stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+    .type-stat-icon {
+        width: 49px;
+        height: 49px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        flex-shrink: 0;
+    }
+
+    .type-icon-blue {
+        color: #2585bd;
+        background: #e9f4fc;
+    }
+
+    .type-icon-green {
+        color: #15966b;
+        background: #e7f8ef;
+    }
+
+    .type-icon-orange {
+        color: #d18b2d;
+        background: #fff4e2;
+    }
+
+    .type-stat-label {
+        color: #8a9ba5;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .type-stat-value {
+        color: #24485a;
+        font-size: 23px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .type-table-card {
+        background: #fff;
+        border: 1px solid #e8eef2;
+        border-radius: 19px;
+        box-shadow: 0 8px 28px rgba(32, 71, 91, .05);
+        overflow: hidden;
+    }
+
+    .type-table-header {
+        padding: 22px 25px;
+        border-bottom: 1px solid #edf1f3;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+        .type-table-header h5 {
+            color: #24485a;
+            font-size: 16px;
+            font-weight: 800;
+            margin: 0;
+        }
+
+    .type-count {
+        background: #e9f7f8;
+        color: #078b99;
+        border-radius: 20px;
+        padding: 6px 12px;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .type-table-wrapper {
+        overflow-x: auto;
+    }
+
+    .type-table {
+        width: 100%;
+        min-width: 750px;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin: 0;
+    }
+
+        .type-table thead th {
+            background: #f7fafb;
+            color: #82939e;
+            font-size: 12px;
+            font-weight: 700;
+            padding: 16px 18px;
+            border-bottom: 1px solid #edf1f3;
+            white-space: nowrap;
+        }
+
+        .type-table tbody td {
+            color: #496371;
+            font-size: 13px;
+            padding: 19px 18px;
+            border-bottom: 1px solid #f0f3f5;
+            vertical-align: middle;
+        }
+
+        .type-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .type-table tbody tr.type-clickable {
+            cursor: pointer;
+            transition: background .2s ease, box-shadow .2s ease;
+        }
+
+            .type-table tbody tr.type-clickable:hover {
+                background: #eaf7f8;
+                box-shadow: inset 4px 0 0 #0799a8;
+            }
+
+    .type-name {
+        color: #24485a;
+        font-weight: 800;
+        font-size: 14px;
+    }
+
+    .type-price {
+        color: #0796a5;
+        font-weight: 800;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .type-person {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #edf5fb;
+        color: #347ba6;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+
+    .type-room-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 34px;
+        padding: 6px 10px;
+        border-radius: 9px;
+        background: #e8f8ef;
+        color: #16845b;
+        font-weight: 800;
+    }
+
+    .type-description {
+        max-width: 280px;
+        line-height: 1.55;
+        color: #82939e;
+    }
+
+    .type-empty {
+        padding: 55px 20px !important;
+        text-align: center;
+        color: #91a0a9 !important;
+    }
+
+        .type-empty i {
+            display: block;
+            font-size: 42px;
+            margin-bottom: 12px;
+            color: #b4c5ce;
+        }
+
+    @@keyframes typeFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 900px) {
+        .type-stat-grid {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+    }
+
+    @@media (max-width: 600px) {
+        .type-title {
+            font-size: 23px;
+        }
+
+        .type-add-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .type-table-header {
+            padding: 18px;
+        }
+    }
+</style>
+
+<div class="container-fluid type-page">
+
+    <div class="type-header">
+        <div>
+            <h2 class="type-title">Quản lý loại phòng</h2>
+            <p class="type-subtitle">
+                Quản lý danh mục, giá và sức chứa các loại phòng khách sạn
+            </p>
+        </div>
+
+        <a asp-action="Create" class="type-add-btn">
+            <i class="bi bi-plus-circle"></i>
+            Thêm loại phòng
+        </a>
+    </div>
+
+    <div class="type-stat-grid">
+
+        <div class="type-stat-card">
+            <div class="type-stat-icon type-icon-blue">
+                <i class="bi bi-grid-1x2"></i>
+            </div>
+            <div>
+                <div class="type-stat-label">Tổng loại phòng</div>
+                <div class="type-stat-value">@tongLoai</div>
+            </div>
+        </div>
+
+        <div class="type-stat-card">
+            <div class="type-stat-icon type-icon-green">
+                <i class="bi bi-door-open"></i>
+            </div>
+            <div>
+                <div class="type-stat-label">Tổng số phòng</div>
+                <div class="type-stat-value">@tongPhong</div>
+            </div>
+        </div>
+
+        <div class="type-stat-card">
+            <div class="type-stat-icon type-icon-orange">
+                <i class="bi bi-cash-stack"></i>
+            </div>
+            <div>
+                <div class="type-stat-label">Giá trung bình / đêm</div>
+                <div class="type-stat-value">
+                    @giaTrungBinh.ToString("N0")
+                    <span style="font-size:13px;">đ</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="type-table-card">
+
+        <div class="type-table-header">
+            <h5>
+                <i class="bi bi-list-ul me-2"></i>
+                Danh sách loại phòng
+            </h5>
+
+            <span class="type-count">
+                @tongLoai loại phòng
+            </span>
+        </div>
+
+        <div class="type-table-wrapper">
+
+            <table class="type-table">
+
+                <thead>
+                    <tr>
+                        <th>TÊN LOẠI PHÒNG</th>
+                        <th>GIÁ MỘT ĐÊM</th>
+                        <th>SỨC CHỨA</th>
+                        <th>MÔ TẢ</th>
+                        <th>SỐ PHÒNG</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @if (danhSachLoai.Any())
+                    {
+                        @foreach (var item in danhSachLoai)
+                        {
+                            <tr class="type-clickable"
+                                onclick="window.location.href='@Url.Action("Details", "LoaiPhongs", new { id = item.MaLoaiPhong })'"
+                                title="Nhấn để xem chi tiết loại phòng">
+
+                                <td>
+                                    <div class="type-name">
+                                        @item.TenLoai
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <div class="type-price">
+                                        @item.GiaMotDem.ToString("N0") đ
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="type-person">
+                                        <i class="bi bi-people"></i>
+                                        @item.SoNguoiToiDa người
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="type-description">
+                                        @(string.IsNullOrWhiteSpace(item.MoTa)
+                                            ? "Chưa có mô tả"
+                                            : item.MoTa)
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <span class="type-room-count">
+                                        @(item.DanhSachPhong?.Count ?? 0)
+                                    </span>
+                                </td>
+
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="type-empty">
+                                <i class="bi bi-inbox"></i>
+                                <strong>Chưa có loại phòng nào</strong>
+                                <div class="mt-2">
+                                    Hãy thêm loại phòng đầu tiên vào hệ thống.
+                                </div>
+                            </td>
+                        </tr>
+                    }
+
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>

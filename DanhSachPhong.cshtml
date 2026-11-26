@@ -1,0 +1,417 @@
+﻿@model IEnumerable<QuanLyKhachSan.Models.Phong>
+
+@{
+    ViewData["Title"] = "Danh sách phòng";
+}
+
+<style>
+    .customer-page {
+        max-width: 1400px;
+        margin: auto;
+    }
+
+    .customer-hero {
+        background: linear-gradient(120deg, #174C85, #2563A6, #5B9BD5);
+        color: white;
+        border-radius: 18px;
+        padding: 48px 40px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .customer-hero h1 {
+            font-size: 34px;
+            font-weight: 750;
+            margin-bottom: 12px;
+        }
+
+        .customer-hero p {
+            color: rgba(255,255,255,.85);
+            font-size: 16px;
+            max-width: 650px;
+            margin-bottom: 22px;
+        }
+
+    .hero-button {
+        display: inline-block;
+        background: white;
+        color: #174C85;
+        padding: 11px 22px;
+        border-radius: 9px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: .2s;
+    }
+
+        .hero-button:hover {
+            background: #EAF2FC;
+            color: #174C85;
+            transform: translateY(-2px);
+        }
+
+    .customer-shortcuts {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 38px;
+    }
+
+    .shortcut-card {
+        background: white;
+        border: 1px solid #E5EAF0;
+        border-radius: 13px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        text-decoration: none;
+        color: #34495E;
+        transition: .2s;
+    }
+
+        .shortcut-card:hover {
+            border-color: #8EB8C8;
+            box-shadow: 0 5px 18px rgba(37, 99, 166, .10);
+            transform: translateY(-3px);
+            color: #2563A6;
+        }
+
+    .shortcut-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        background: #EAF2FC;
+        color: #2563A6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 21px;
+        flex-shrink: 0;
+    }
+
+    .shortcut-card strong {
+        display: block;
+        font-size: 14px;
+        margin-bottom: 3px;
+    }
+
+    .shortcut-card small {
+        color: #8492A6;
+        font-size: 12px;
+    }
+
+    .section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 12px;
+    }
+
+        .section-heading h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #263B53;
+            margin: 0;
+        }
+
+    .room-count {
+        color: #718096;
+        font-size: 14px;
+    }
+
+    .room-card {
+        border: 1px solid #E7ECF2;
+        border-radius: 14px;
+        overflow: hidden;
+        background: white;
+        height: 100%;
+        transition: transform .2s, box-shadow .2s;
+    }
+
+        .room-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(31, 60, 90, .12);
+        }
+
+    .room-image {
+        width: 100%;
+        height: 225px;
+        object-fit: cover;
+        display: block;
+    }
+
+    .room-no-image {
+        height: 225px;
+        background: #F0F4F8;
+        color: #8492A6;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .room-card .card-body {
+        padding: 20px;
+    }
+
+    .room-number {
+        font-size: 20px;
+        font-weight: 700;
+        color: #263B53;
+        margin-bottom: 5px;
+    }
+
+    .room-type {
+        color: #2563A6;
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .room-price {
+        color: #2563A6;
+        font-size: 21px;
+        font-weight: 750;
+    }
+
+        .room-price small {
+            font-size: 12px;
+            font-weight: 400;
+            color: #8492A6;
+        }
+
+    .room-info {
+        color: #66788A;
+        font-size: 14px;
+        margin-bottom: 9px;
+    }
+
+    .room-description {
+        color: #718096;
+        font-size: 13px;
+        min-height: 58px;
+        line-height: 1.6;
+    }
+
+    .room-card .card-footer {
+        background: white;
+        border: 0;
+        padding: 0 20px 20px;
+    }
+
+    .btn-book-room {
+        background: #2563A6;
+        border: none;
+        border-radius: 9px;
+        padding: 11px;
+        font-weight: 600;
+        color: white;
+        transition: .2s;
+    }
+
+        .btn-book-room:hover {
+            background: #174C85;
+            color: white;
+        }
+
+    .empty-rooms {
+        background: white;
+        border: 1px dashed #C9D5E2;
+        border-radius: 14px;
+        padding: 45px 20px;
+        text-align: center;
+        color: #718096;
+    }
+
+    @@media (max-width: 900px) {
+        .customer-shortcuts {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .customer-hero {
+            padding: 30px 22px;
+        }
+
+            .customer-hero h1 {
+                font-size: 26px;
+            }
+
+        .customer-shortcuts {
+            grid-template-columns: 1fr;
+        }
+
+        .section-heading {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="customer-page">
+
+    <div class="customer-hero">
+        <h1>Chào mừng đến với khách sạn</h1>
+
+        <p>
+            Tận hưởng không gian nghỉ dưỡng thoải mái, dịch vụ chuyên nghiệp
+            và lựa chọn căn phòng phù hợp cho chuyến đi của bạn.
+        </p>
+
+        <a href="#danhSachPhong" class="hero-button">
+            Khám phá phòng ngay
+        </a>
+    </div>
+
+    @if (User.IsInRole("KhachHang"))
+    {
+        <div class="customer-shortcuts">
+
+            <a asp-controller="DatPhongs"
+               asp-action="PhongCuaToi"
+               class="shortcut-card">
+                <div class="shortcut-icon">▣</div>
+                <div>
+                    <strong>Phòng của tôi</strong>
+                    <small>Xem các phòng đã đặt</small>
+                </div>
+            </a>
+
+            <a asp-controller="HoaDons"
+               asp-action="HoaDonCuaToi"
+               class="shortcut-card">
+                <div class="shortcut-icon">▤</div>
+                <div>
+                    <strong>Hóa đơn</strong>
+                    <small>Xem thông tin thanh toán</small>
+                </div>
+            </a>
+
+            <a asp-controller="ThongBao"
+               asp-action="Index"
+               class="shortcut-card">
+                <div class="shortcut-icon">♧</div>
+                <div>
+                    <strong>Thông báo</strong>
+                    <small>Cập nhật thông tin đặt phòng</small>
+                </div>
+            </a>
+
+            <a asp-controller="Home"
+               asp-action="ThongTinCaNhan"
+               class="shortcut-card">
+                <div class="shortcut-icon">♙</div>
+                <div>
+                    <strong>Tài khoản</strong>
+                    <small>Quản lý thông tin cá nhân</small>
+                </div>
+            </a>
+
+        </div>
+    }
+
+    <div id="danhSachPhong">
+
+        <div class="section-heading">
+            <div>
+                <h2>Khám phá phòng nghỉ</h2>
+                <div class="room-count">
+                    Lựa chọn không gian nghỉ dưỡng phù hợp với bạn
+                </div>
+            </div>
+
+            <span class="badge bg-primary">
+                Chọn ngày để kiểm tra phòng
+            </span>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="empty-rooms">
+                <h5>Hiện tại chưa có phòng trống</h5>
+                <p class="mb-0">
+                    Vui lòng quay lại sau để xem các phòng còn trống.
+                </p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+
+                @foreach (var phong in Model)
+                {
+                    <div class="col-md-6 col-xl-4">
+
+                        <div class="room-card">
+
+                            @if (!string.IsNullOrWhiteSpace(phong.HinhAnh))
+                            {
+                                <img src="@phong.HinhAnh"
+                                     class="room-image"
+                                     alt="Ảnh phòng @phong.SoPhong" />
+                            }
+                            else
+                            {
+                                <div class="room-no-image">
+                                    Chưa có ảnh phòng
+                                </div>
+                            }
+
+                            <div class="card-body">
+
+                                <div class="room-number">
+                                    Phòng @phong.SoPhong
+                                </div>
+
+                                <div class="room-type">
+                                    @phong.LoaiPhong?.TenLoai
+                                </div>
+
+                                <div class="room-price">
+                                    @(phong.LoaiPhong?.GiaMotDem.ToString("N0") ?? "0") đ
+                                    <small>/ đêm</small>
+                                </div>
+
+                                <hr />
+
+                                <div class="room-info">
+                                    Số người tối đa:
+                                    <strong>
+                                        @(phong.LoaiPhong?.SoNguoiToiDa ?? 0) người
+                                    </strong>
+                                </div>
+
+                                <p class="room-description mb-3">
+                                    @(string.IsNullOrWhiteSpace(phong.LoaiPhong?.MoTa)
+                                        ? "Chưa có mô tả cho loại phòng này."
+                                        : phong.LoaiPhong.MoTa)
+                                </p>
+
+                                <span class="badge bg-info text-dark">
+                                    Kiểm tra ngày còn trống
+                                </span>
+
+                            </div>
+
+                            <div class="card-footer">
+                                <a asp-controller="DatPhongs"
+                                   asp-action="Create"
+                                   asp-route-maPhong="@phong.MaPhong"
+                                   class="btn btn-book-room w-100">
+                                    Chọn ngày để đặt
+                                </a>
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+            </div>
+        }
+
+    </div>
+
+</div>

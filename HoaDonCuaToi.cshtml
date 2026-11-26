@@ -1,0 +1,171 @@
+﻿@model IEnumerable<QuanLyKhachSan.Models.HoaDon>
+
+@{
+    ViewData["Title"] = "Hóa đơn của tôi";
+}
+
+<div class="container py-4">
+
+    <div class="mb-4">
+        <h2 class="fw-bold">Hóa đơn của tôi</h2>
+        <p class="text-muted mb-0">
+            Theo dõi chi phí và lịch sử thanh toán các lần lưu trú.
+        </p>
+    </div>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            Bạn hiện chưa có hóa đơn nào.
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+
+            @foreach (var item in Model)
+            {
+                var cacKhoanThanhToan = item.DatPhong?.ThanhToans?.ToList()
+                    ?? new List<QuanLyKhachSan.Models.ThanhToan>();
+
+                var tienDaThu = cacKhoanThanhToan
+                    .Where(t => t.TrangThai == "ThanhCong")
+                    .Sum(t => t.SoTien);
+
+                var tienConLai = Math.Max(
+                    0,
+                    item.TongTien - tienDaThu);
+
+                <div class="col-12">
+
+                    <a href="@Url.Action("ChiTietCuaToi", "HoaDons", new { id = item.MaHoaDon })"
+                       class="invoice-link">
+
+                        <div class="card border-0 shadow-sm rounded-4 invoice-card">
+
+                            <div class="card-body p-4">
+
+                                <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+
+                                    <div>
+                                        <div class="text-muted small mb-1">
+                                            Phòng
+                                        </div>
+
+                                        <h5 class="fw-bold mb-1">
+                                            @(item.DatPhong?.Phong?.SoPhong ?? "Chưa có")
+                                        </h5>
+
+                                        <span class="text-muted small">
+                                            @(item.DatPhong?.Phong?.LoaiPhong?.TenLoai ?? "")
+                                        </span>
+                                    </div>
+
+                                    <div class="text-md-end">
+                                        <div class="text-muted small mb-1">
+                                            Ngày lập hóa đơn
+                                        </div>
+
+                                        <div class="fw-semibold">
+                                            @item.NgayLap.ToString("dd/MM/yyyy")
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        @if (item.DaThanhToan)
+                                        {
+                                            <span class="badge rounded-pill bg-success px-3 py-2">
+                                                Đã thanh toán
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge rounded-pill bg-warning text-dark px-3 py-2">
+                                                Chưa thanh toán đủ
+                                            </span>
+                                        }
+                                    </div>
+
+                                </div>
+
+                                <hr />
+
+                                <h6 class="fw-bold mb-3">
+                                    Chi tiết thanh toán
+                                </h6>
+
+                                <div class="row g-3 mb-3">
+
+                                    <div class="col-md-4">
+                                        <div class="p-3 rounded-3 bg-light h-100">
+                                            <div class="text-muted small">
+                                                Tổng tiền hóa đơn
+                                            </div>
+
+                                            <div class="fw-bold fs-5">
+                                                @item.TongTien.ToString("N0") đ
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="p-3 rounded-3 bg-light h-100">
+                                            <div class="text-muted small">
+                                                Đã thanh toán
+                                            </div>
+
+                                            <div class="fw-bold fs-5 text-success">
+                                                @tienDaThu.ToString("N0") đ
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="p-3 rounded-3 bg-light h-100">
+                                            <div class="text-muted small">
+                                                Còn phải thanh toán
+                                            </div>
+
+                                            <div class="fw-bold fs-5 @(tienConLai > 0 ? "text-danger" : "text-success")">
+                                                @tienConLai.ToString("N0") đ
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="text-primary fw-semibold text-end mt-3">
+                                    Xem chi tiết hóa đơn →
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </a>
+
+                </div>
+            }
+
+        </div>
+    }
+
+</div>
+
+<style>
+    .invoice-link {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .invoice-card {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+        .invoice-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+            border: 1px solid #8eb8c8 !important;
+        }
+</style>

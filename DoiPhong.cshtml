@@ -1,0 +1,224 @@
+﻿@model QuanLyKhachSan.Models.DoiPhongViewModel
+
+@{
+    ViewData["Title"] = "Đổi phòng";
+}
+
+<style>
+    .change-room-page {
+        max-width: 850px;
+        margin: 30px auto;
+        padding: 0 15px 40px;
+    }
+
+    .change-room-card {
+        background: #fff;
+        border: 1px solid #e3eaf0;
+        border-radius: 18px;
+        padding: 30px;
+        box-shadow: 0 8px 25px rgba(25, 55, 75, .07);
+    }
+
+    .change-room-title {
+        color: #183b4e;
+        font-size: 27px;
+        font-weight: 800;
+        margin-bottom: 8px;
+    }
+
+    .change-room-subtitle {
+        color: #718096;
+        margin-bottom: 25px;
+    }
+
+    .change-room-info {
+        background: #f2f8fb;
+        border: 1px solid #dceaf0;
+        border-radius: 13px;
+        padding: 18px;
+        margin-bottom: 25px;
+    }
+
+        .change-room-info p {
+            margin-bottom: 9px;
+            color: #405568;
+        }
+
+            .change-room-info p:last-child {
+                margin-bottom: 0;
+            }
+
+    .change-room-label {
+        color: #294b60;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .change-room-control {
+        border-radius: 10px;
+        padding: 11px 13px;
+        border: 1px solid #d6e0e8;
+    }
+
+        .change-room-control:focus {
+            border-color: #65a9bf;
+            box-shadow: 0 0 0 3px rgba(101,169,191,.15);
+        }
+
+    .change-room-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 25px;
+    }
+
+    .btn-change-room {
+        background: #368ba5;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 11px 22px;
+        font-weight: 700;
+    }
+
+        .btn-change-room:hover {
+            background: #286f87;
+            color: white;
+        }
+
+    .btn-back-room {
+        background: #eef2f5;
+        color: #405568;
+        border-radius: 10px;
+        padding: 11px 22px;
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+        .btn-back-room:hover {
+            background: #dfe7ed;
+            color: #294b60;
+        }
+
+    @@media(max-width:576px) {
+        .change-room-card {
+            padding: 20px;
+        }
+    }
+</style>
+
+<div class="change-room-page">
+    <div class="change-room-card">
+
+        <h2 class="change-room-title">
+            <i class="bi bi-arrow-left-right"></i>
+            Đổi phòng
+        </h2>
+
+        <p class="change-room-subtitle">
+            Chọn phòng mới cho đơn đặt phòng này.
+        </p>
+
+        <div class="change-room-info">
+            <p>
+                <strong>Mã đặt phòng:</strong>
+                #@Model.MaDatPhong
+            </p>
+
+            <p>
+                <strong>Khách hàng:</strong>
+                @Model.TenKhachHang
+            </p>
+
+            <p>
+                <strong>Phòng hiện tại:</strong>
+                <span class="fw-bold text-primary">
+                    @Model.SoPhongCu
+                </span>
+            </p>
+
+            <p>
+                <strong>Ngày nhận:</strong>
+                @Model.NgayDen.ToString("dd/MM/yyyy")
+            </p>
+
+            <p>
+                <strong>Ngày trả:</strong>
+                @Model.NgayDi.ToString("dd/MM/yyyy")
+            </p>
+
+            <p>
+                <strong>Trạng thái:</strong>
+                @Model.TrangThaiDatPhong
+            </p>
+        </div>
+
+        <form asp-action="DoiPhong" method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   asp-for="MaDatPhong" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="alert alert-danger"></div>
+
+            <div class="mb-3">
+                <label class="change-room-label"
+                       asp-for="MaPhongMoi">
+                    Chọn phòng mới
+                </label>
+
+                <select asp-for="MaPhongMoi"
+                        asp-items="ViewBag.DanhSachPhong"
+                        class="form-select change-room-control">
+                    <option value="">-- Chọn phòng muốn chuyển --</option>
+                </select>
+
+                <span asp-validation-for="MaPhongMoi"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="LyDo"
+                       class="change-room-label">
+                    Lý do đổi phòng
+                </label>
+
+                <textarea asp-for="LyDo"
+                          class="form-control change-room-control"
+                          rows="3"
+                          placeholder="Ví dụ: Khách yêu cầu đổi phòng, phòng cũ gặp sự cố..."></textarea>
+
+                <span asp-validation-for="LyDo"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i>
+                Chỉ những phòng không trùng lịch, không bảo trì
+                và đã được kiểm tra vệ sinh mới được phép lựa chọn.
+            </div>
+
+            <div class="change-room-actions">
+                <button type="submit"
+                        class="btn-change-room">
+                    <i class="bi bi-check-circle"></i>
+                    Xác nhận đổi phòng
+                </button>
+
+                <a asp-action="Details"
+                   asp-route-id="@Model.MaDatPhong"
+                   class="btn-back-room">
+                    Quay lại
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,54 @@
+﻿@model IEnumerable<QuanLyKhachSan.Models.NhanVienItem>
+
+@{
+    ViewData["Title"] = "Nhân viên";
+}
+
+<h1>Quản lý nhân viên</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Thêm nhân viên</a>
+</p>
+
+<table class="table align-middle">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Vai trò hiện tại</th>
+            <th>Đổi vai trò</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var laToi = string.Equals(item.Email, User.Identity?.Name, StringComparison.OrdinalIgnoreCase);
+            <tr>
+                var laToi = string.Equals(item.Email, User.Identity?.Name, StringComparison.OrdinalIgnoreCase);
+                <td>@item.VaiTro</td>
+                <td>
+                    @if (!laToi)
+                    {
+                        <form asp-action="DoiVaiTro" method="post" class="d-flex gap-2">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <select name="vaiTro" class="form-select form-select-sm" style="width:auto">
+                                <option value="Admin" selected="@(item.VaiTro == "Admin")">Admin</option>
+                                <option value="LeTan" selected="@(item.VaiTro == "LeTan")">Lễ tân</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Lưu</button>
+                        </form>
+                    }
+                </td>
+                <td>
+                    @if (!laToi)
+                    {
+                        <form asp-action="Xoa" method="post" onsubmit="return confirm('Xóa tài khoản này?');">
+                            <input type="hidden" name="id" value="@item.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Xóa</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

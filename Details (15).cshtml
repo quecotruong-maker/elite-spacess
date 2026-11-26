@@ -1,0 +1,581 @@
+@model QuanLyKhachSan.Models.LoaiPhong
+
+@{
+    ViewData["Title"] = "Chi tiết loại phòng";
+}
+
+<style>
+    .type-detail-page {
+        padding: 10px 0 35px;
+        animation: typeDetailFade .45s ease;
+    }
+
+    .type-detail-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 25px;
+    }
+
+    .type-detail-title {
+        color: #183b4e;
+        font-size: 27px;
+        font-weight: 800;
+        margin-bottom: 7px;
+    }
+
+    .type-detail-subtitle {
+        color: #82939e;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .type-detail-card {
+        background: #fff;
+        border: 1px solid #e8eef2;
+        border-radius: 20px;
+        box-shadow: 0 8px 28px rgba(32, 71, 91, .06);
+        overflow: hidden;
+    }
+
+    .type-detail-banner {
+        padding: 32px;
+        background: linear-gradient(120deg, #087f91, #12a8ad);
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .type-detail-banner::after {
+            content: "";
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            border: 35px solid rgba(255,255,255,.08);
+            border-radius: 50%;
+            right: 35px;
+            top: -110px;
+        }
+
+    .type-detail-banner-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .type-detail-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 12px;
+        border-radius: 30px;
+        background: rgba(255,255,255,.16);
+        font-size: 12px;
+        font-weight: 700;
+        margin-bottom: 15px;
+    }
+
+    .type-detail-name {
+        font-size: 32px;
+        font-weight: 800;
+        margin-bottom: 9px;
+        overflow-wrap: anywhere;
+    }
+
+    .type-detail-code {
+        font-size: 13px;
+        color: rgba(255,255,255,.8);
+    }
+
+    .type-detail-content {
+        padding: 30px;
+    }
+
+    .type-detail-stat {
+        height: 100%;
+        padding: 22px;
+        background: #f7fafb;
+        border: 1px solid #eaf0f3;
+        border-radius: 15px;
+        transition: all .25s ease;
+    }
+
+        .type-detail-stat:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(32,71,91,.07);
+        }
+
+    .type-detail-stat-icon {
+        width: 43px;
+        height: 43px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 13px;
+        background: #e1f3f4;
+        color: #078d9c;
+        font-size: 20px;
+        margin-bottom: 16px;
+    }
+
+    .type-detail-stat-label {
+        color: #8497a1;
+        font-size: 13px;
+        margin-bottom: 7px;
+    }
+
+    .type-detail-stat-value {
+        color: #24485a;
+        font-size: 22px;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+    }
+
+    .type-detail-section {
+        margin-top: 30px;
+    }
+
+    .type-detail-section-title {
+        color: #294b5b;
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 15px;
+    }
+
+    .type-detail-description {
+        padding: 20px;
+        background: #f7fafb;
+        border: 1px solid #eaf0f3;
+        border-radius: 14px;
+        color: #637d89;
+        font-size: 14px;
+        line-height: 1.8;
+        min-height: 90px;
+        overflow-wrap: anywhere;
+        white-space: pre-line;
+    }
+
+    .type-detail-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 11px;
+        margin-top: 28px;
+        padding-top: 22px;
+        border-top: 1px solid #edf1f3;
+    }
+
+    .type-detail-btn {
+        min-height: 45px;
+        padding: 10px 22px;
+        border: none;
+        border-radius: 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all .25s ease;
+        cursor: pointer;
+    }
+
+        .type-detail-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(30,70,90,.12);
+        }
+
+    .btn-edit-type {
+        color: #fff;
+        background: linear-gradient(135deg, #0799a8, #087c91);
+    }
+
+    .btn-delete-type {
+        color: #fff;
+        background: linear-gradient(135deg, #e45d65, #c93645);
+    }
+
+    .btn-back-type {
+        color: #526b78;
+        background: #edf2f5;
+    }
+
+    /* Modal xác nhận xóa */
+    .type-delete-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        background: rgba(13, 31, 42, .58);
+        backdrop-filter: blur(5px);
+    }
+
+        .type-delete-modal.show {
+            display: flex;
+            animation: modalFadeIn .2s ease;
+        }
+
+    .type-delete-dialog {
+        width: 100%;
+        max-width: 430px;
+        padding: 32px;
+        background: #fff;
+        border-radius: 22px;
+        text-align: center;
+        box-shadow: 0 20px 65px rgba(0,0,0,.22);
+        animation: modalSlideIn .25s ease;
+    }
+
+    .type-delete-icon {
+        width: 68px;
+        height: 68px;
+        margin: 0 auto 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #fff0f0;
+        color: #df4d58;
+    }
+
+        .type-delete-icon svg {
+            width: 34px;
+            height: 34px;
+        }
+
+    .type-delete-title {
+        color: #203f50;
+        font-size: 21px;
+        font-weight: 800;
+        margin-bottom: 10px;
+    }
+
+    .type-delete-message {
+        color: #7b8d97;
+        font-size: 14px;
+        line-height: 1.7;
+        margin-bottom: 25px;
+    }
+
+    .type-delete-name {
+        color: #c93645;
+        font-weight: 800;
+    }
+
+    .type-delete-buttons {
+        display: flex;
+        gap: 12px;
+    }
+
+        .type-delete-buttons button {
+            flex: 1;
+            min-height: 45px;
+            border: none;
+            border-radius: 11px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+    .type-delete-cancel {
+        color: #526b78;
+        background: #edf2f5;
+    }
+
+    .type-delete-confirm {
+        color: #fff;
+        background: linear-gradient(135deg, #e45d65, #c93645);
+    }
+
+    .type-delete-buttons button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 13px rgba(30,70,90,.12);
+    }
+
+    @@keyframes typeDetailFade {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes modalFadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @@keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(15px) scale(.97);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .type-detail-content {
+            padding: 20px;
+        }
+
+        .type-detail-banner {
+            padding: 25px 20px;
+        }
+
+        .type-detail-name {
+            font-size: 25px;
+        }
+
+        .type-detail-title {
+            font-size: 23px;
+        }
+
+        .type-detail-btn {
+            flex: 1 1 100%;
+        }
+
+        .type-delete-dialog {
+            padding: 25px 20px;
+        }
+    }
+</style>
+
+<div class="container-fluid type-detail-page">
+
+    <div class="type-detail-heading">
+        <div>
+            <h2 class="type-detail-title">Chi tiết loại phòng</h2>
+            <p class="type-detail-subtitle">
+                Xem thông tin và quản lý cấu hình của loại phòng trong khách sạn
+            </p>
+        </div>
+    </div>
+
+    <div class="type-detail-card">
+
+        <div class="type-detail-banner">
+            <div class="type-detail-banner-content">
+
+                <div class="type-detail-label">
+                    <i class="bi bi-building"></i>
+                    DANH MỤC LOẠI PHÒNG
+                </div>
+
+                <h1 class="type-detail-name">
+                    @Model.TenLoai
+                </h1>
+
+                <div class="type-detail-code">
+                    <i class="bi bi-hash me-1"></i>
+                    Mã loại phòng: @Model.MaLoaiPhong
+                </div>
+
+            </div>
+        </div>
+
+        <div class="type-detail-content">
+
+            <div class="row g-3">
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="type-detail-stat">
+                        <div class="type-detail-stat-icon">
+                            <i class="bi bi-cash-stack"></i>
+                        </div>
+
+                        <div class="type-detail-stat-label">
+                            Giá thuê mỗi đêm
+                        </div>
+
+                        <div class="type-detail-stat-value">
+                            @Model.GiaMotDem.ToString("N0") đ
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="type-detail-stat">
+                        <div class="type-detail-stat-icon">
+                            <i class="bi bi-people"></i>
+                        </div>
+
+                        <div class="type-detail-stat-label">
+                            Sức chứa tối đa
+                        </div>
+
+                        <div class="type-detail-stat-value">
+                            @Model.SoNguoiToiDa người
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-xl-4">
+                    <div class="type-detail-stat">
+                        <div class="type-detail-stat-icon">
+                            <i class="bi bi-bookmark-check"></i>
+                        </div>
+
+                        <div class="type-detail-stat-label">
+                            Tên loại phòng
+                        </div>
+
+                        <div class="type-detail-stat-value">
+                            @Model.TenLoai
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="type-detail-section">
+
+                <h5 class="type-detail-section-title">
+                    <i class="bi bi-card-text me-2" style="color:#0799a8;"></i>
+                    Mô tả loại phòng
+                </h5>
+
+                <div class="type-detail-description">
+                    @if (string.IsNullOrWhiteSpace(Model.MoTa))
+                    {
+                        <span class="text-muted">
+                            Chưa có mô tả cho loại phòng này.
+                        </span>
+                    }
+                    else
+                    {
+                        @Model.MoTa
+                    }
+                </div>
+
+            </div>
+
+            <div class="type-detail-actions">
+
+                <a asp-action="Edit"
+                   asp-route-id="@Model.MaLoaiPhong"
+                   class="type-detail-btn btn-edit-type">
+                    <i class="bi bi-pencil-square"></i>
+                    Chỉnh sửa loại phòng
+                </a>
+
+                <button type="button"
+                        class="type-detail-btn btn-delete-type"
+                        onclick="openTypeDeleteModal()">
+                    <i class="bi bi-trash"></i>
+                    Xóa loại phòng
+                </button>
+
+                <a asp-action="Index"
+                   class="type-detail-btn btn-back-type">
+                    <i class="bi bi-arrow-left"></i>
+                    Quay lại danh sách
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal xác nhận xóa -->
+<div class="type-delete-modal" id="typeDeleteModal">
+    <div class="type-delete-dialog">
+
+        <div class="type-delete-icon">
+            <svg viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="currentColor"
+                 stroke-width="1.8"
+                 stroke-linecap="round"
+                 stroke-linejoin="round">
+                <path d="M12 9v4"></path>
+                <path d="M12 17h.01"></path>
+                <path d="M10.3 3.9 1.8 18.2A2 2 0 0 0 3.5 21h17a2 2 0 0 0 1.7-2.8L13.7 3.9a2 2 0 0 0-3.4 0Z"></path>
+            </svg>
+        </div>
+
+        <h4 class="type-delete-title">
+            Xác nhận xóa loại phòng?
+        </h4>
+
+        <p class="type-delete-message">
+            Bạn có chắc chắn muốn xóa loại phòng
+            <span class="type-delete-name">@Model.TenLoai</span>?
+            <br />
+            Thao tác này không thể hoàn tác. Nếu vẫn còn phòng thuộc loại này,
+            hệ thống sẽ từ chối xóa.
+        </p>
+
+        <div class="type-delete-buttons">
+            <button type="button"
+                    class="type-delete-cancel"
+                    onclick="closeTypeDeleteModal()">
+                Hủy
+            </button>
+
+            <button type="button"
+                    class="type-delete-confirm"
+                    onclick="confirmTypeDelete()">
+                Xác nhận xóa
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- Form POST xóa -->
+<form asp-action="Delete"
+      asp-route-id="@Model.MaLoaiPhong"
+      method="post"
+      id="typeDeleteForm"
+      style="display:none;">
+
+    @Html.AntiForgeryToken()
+
+</form>
+
+<script>
+    function openTypeDeleteModal() {
+        document.getElementById("typeDeleteModal").classList.add("show");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeTypeDeleteModal() {
+        document.getElementById("typeDeleteModal").classList.remove("show");
+        document.body.style.overflow = "";
+    }
+
+    function confirmTypeDelete() {
+        document.getElementById("typeDeleteForm").submit();
+    }
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            closeTypeDeleteModal();
+        }
+    });
+
+    document.getElementById("typeDeleteModal").addEventListener("click", function (event) {
+        if (event.target === this) {
+            closeTypeDeleteModal();
+        }
+    });
+</script>

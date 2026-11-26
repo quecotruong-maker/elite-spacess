@@ -1,0 +1,466 @@
+@model QuanLyKhachSan.Models.Phong
+
+@{
+    ViewData["Title"] = "Sửa phòng";
+}
+
+<style>
+    .edit-room-page {
+        padding: 10px 0 35px;
+        animation: editFadeIn .45s ease;
+    }
+
+    .edit-room-header {
+        margin-bottom: 25px;
+    }
+
+    .edit-room-title {
+        color: #183b4e;
+        font-size: 27px;
+        font-weight: 800;
+        margin-bottom: 7px;
+    }
+
+    .edit-room-subtitle {
+        color: #82939e;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .edit-room-card {
+        background: #fff;
+        border: 1px solid #e8eef2;
+        border-radius: 20px;
+        box-shadow: 0 8px 28px rgba(32, 71, 91, .06);
+        overflow: hidden;
+    }
+
+    .edit-room-card-header {
+        padding: 22px 28px;
+        border-bottom: 1px solid #edf1f3;
+        background: linear-gradient(135deg, #f5fbfc, #fff);
+    }
+
+        .edit-room-card-header h5 {
+            color: #24485a;
+            font-weight: 800;
+            margin: 0 0 5px;
+        }
+
+        .edit-room-card-header p {
+            color: #91a0a9;
+            font-size: 13px;
+            margin: 0;
+        }
+
+    .edit-room-content {
+        padding: 28px;
+    }
+
+    .edit-room-label {
+        color: #365666;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 9px;
+    }
+
+    .edit-room-control {
+        min-height: 47px;
+        border: 1px solid #dfe8ed;
+        border-radius: 11px;
+        padding: 10px 14px;
+        color: #294b5b;
+        transition: all .2s ease;
+    }
+
+        .edit-room-control:focus {
+            border-color: #16a1ad;
+            box-shadow: 0 0 0 3px rgba(22, 161, 173, .12);
+        }
+
+    .edit-room-help {
+        color: #91a0a9;
+        font-size: 12px;
+        margin-top: 8px;
+        line-height: 1.6;
+    }
+
+    .edit-room-image-box {
+        border: 1px solid #e5edf0;
+        border-radius: 15px;
+        padding: 14px;
+        background: #f8fbfc;
+    }
+
+    .edit-room-image {
+        width: 100%;
+        height: 240px;
+        object-fit: cover;
+        border-radius: 11px;
+        display: block;
+    }
+
+    .edit-room-no-image {
+        height: 190px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #9aabb4;
+        gap: 10px;
+    }
+
+        .edit-room-no-image i {
+            font-size: 45px;
+        }
+
+    .edit-room-upload {
+        border: 2px dashed #cbdde4;
+        border-radius: 15px;
+        background: #f8fbfc;
+        padding: 20px;
+        transition: all .25s ease;
+    }
+
+        .edit-room-upload:hover {
+            border-color: #18a0ad;
+            background: #f1fafb;
+        }
+
+    .edit-room-upload-icon {
+        font-size: 30px;
+        color: #16a0ad;
+        margin-bottom: 8px;
+    }
+
+    .edit-room-new-preview {
+        display: none;
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 11px;
+        margin-top: 14px;
+        border: 1px solid #e5edf0;
+    }
+
+    .edit-room-status-note {
+        background: #fff8e9;
+        border: 1px solid #f6e5bf;
+        border-radius: 11px;
+        padding: 13px 15px;
+        color: #8c6a2e;
+        font-size: 12px;
+        line-height: 1.6;
+        margin-top: 10px;
+    }
+
+    .edit-room-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 11px;
+        margin-top: 28px;
+        padding-top: 22px;
+        border-top: 1px solid #edf1f3;
+    }
+
+    .edit-room-btn {
+        min-height: 45px;
+        padding: 10px 22px;
+        border: none;
+        border-radius: 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all .25s ease;
+    }
+
+        .edit-room-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(30, 70, 90, .12);
+        }
+
+    .btn-save-edit {
+        color: #fff;
+        background: linear-gradient(135deg, #0799a8, #087c91);
+    }
+
+    .btn-back-edit {
+        color: #526b78;
+        background: #edf2f5;
+    }
+
+    @@keyframes editFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .edit-room-content {
+            padding: 20px;
+        }
+
+        .edit-room-title {
+            font-size: 23px;
+        }
+
+        .edit-room-btn {
+            flex: 1 1 100%;
+        }
+    }
+</style>
+
+<div class="container-fluid edit-room-page">
+
+    <div class="edit-room-header">
+        <h2 class="edit-room-title">Chỉnh sửa phòng</h2>
+        <p class="edit-room-subtitle">
+            Cập nhật thông tin và hình ảnh phòng trong hệ thống
+        </p>
+    </div>
+
+    <div class="edit-room-card">
+
+        <div class="edit-room-card-header">
+            <h5>
+                <i class="bi bi-pencil-square me-2"></i>
+                Thông tin phòng @Model.SoPhong
+            </h5>
+            <p>Kiểm tra thông tin trước khi lưu thay đổi</p>
+        </div>
+
+        <div class="edit-room-content">
+
+            <form asp-action="Edit"
+                  enctype="multipart/form-data"
+                  method="post">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger rounded-3"></div>
+
+                <input type="hidden" asp-for="MaPhong" />
+
+                <div class="row g-4">
+
+                    <div class="col-lg-7">
+
+                        <div class="mb-4">
+                            <label asp-for="SoPhong" class="edit-room-label">
+                                Số phòng
+                            </label>
+
+                            <input asp-for="SoPhong"
+                                   class="form-control edit-room-control"
+                                   placeholder="Nhập số phòng" />
+
+                            <span asp-validation-for="SoPhong"
+                                  class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="MaLoaiPhong" class="edit-room-label">
+                                Loại phòng
+                            </label>
+
+                            <select asp-for="MaLoaiPhong"
+                                    class="form-select edit-room-control"
+                                    asp-items="ViewBag.MaLoaiPhong">
+                            </select>
+
+                            <span asp-validation-for="MaLoaiPhong"
+                                  class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="TrangThai" class="edit-room-label">
+                                Trạng thái phòng
+                            </label>
+
+                            <select asp-for="TrangThai"
+                                    class="form-select edit-room-control">
+                                @foreach (var tt in new[] { "Trống", "Đã đặt", "Đang ở", "Đang dọn", "Bảo trì" })
+                                {
+                                    <option value="@tt">@tt</option>
+                                }
+                            </select>
+
+                            <span asp-validation-for="TrangThai"
+                                  class="text-danger small"></span>
+
+                            <div class="edit-room-status-note">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Trạng thái "Đang ở" và "Đang dọn" thường do hệ thống
+                                tự động cập nhật khi check-in và check-out.
+                                Chỉ chỉnh tay khi cần sửa sai hoặc chuyển phòng sang
+                                trạng thái "Bảo trì".
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-5">
+
+                        <label class="edit-room-label">
+                            Ảnh phòng hiện tại
+                        </label>
+
+                        <div class="edit-room-image-box mb-4">
+
+                            @if (!string.IsNullOrEmpty(Model.HinhAnh))
+                            {
+                                <img src="@Model.HinhAnh"
+                                     alt="Ảnh phòng @Model.SoPhong"
+                                     class="edit-room-image" />
+                            }
+                            else
+                            {
+                                <div class="edit-room-no-image">
+                                    <i class="bi bi-image"></i>
+                                    <span>Phòng chưa có ảnh</span>
+                                </div>
+                            }
+
+                        </div>
+
+                        <label class="edit-room-label">
+                            Thay ảnh phòng
+                        </label>
+
+                        <div class="edit-room-upload">
+
+                            <div class="text-center mb-3">
+                                <i class="bi bi-cloud-arrow-up edit-room-upload-icon"></i>
+                                <div class="fw-bold" style="color:#365666;">
+                                    Chọn ảnh mới
+                                </div>
+                                <div class="edit-room-help">
+                                    JPG, JPEG, PNG hoặc WEBP
+                                </div>
+                            </div>
+
+                            <input type="file"
+                                   id="newRoomImage"
+                                   name="hinhAnh"
+                                   class="form-control edit-room-control"
+                                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                            <img id="newRoomPreview"
+                                 class="edit-room-new-preview"
+                                 alt="Ảnh mới xem trước" />
+
+                            <button type="button"
+                                    id="removeNewRoomImage"
+                                    class="btn btn-sm btn-outline-danger mt-3"
+                                    style="display:none;">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Bỏ ảnh mới
+                            </button>
+
+                            <div class="edit-room-help">
+                                Tối đa 5 MB. Không chọn ảnh mới nếu muốn giữ ảnh hiện tại.
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="edit-room-actions">
+
+                    <button type="submit" class="edit-room-btn btn-save-edit">
+                        <i class="bi bi-check-circle"></i>
+                        Lưu thay đổi
+                    </button>
+
+                    <a asp-action="Index"
+                       class="edit-room-btn btn-back-edit">
+                        <i class="bi bi-arrow-left"></i>
+                        Quay lại danh sách
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const newRoomImage = document.getElementById("newRoomImage");
+        const newRoomPreview = document.getElementById("newRoomPreview");
+        const removeNewRoomImage = document.getElementById("removeNewRoomImage");
+
+        let newRoomPreviewUrl = null;
+
+        newRoomImage.addEventListener("change", function () {
+            const file = this.files[0];
+
+            if (newRoomPreviewUrl) {
+                URL.revokeObjectURL(newRoomPreviewUrl);
+                newRoomPreviewUrl = null;
+            }
+
+            if (!file) {
+                resetNewRoomPreview();
+                return;
+            }
+
+            const allowedTypes = [
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            ];
+
+            if (!allowedTypes.includes(file.type)) {
+                alert("Vui lòng chọn ảnh JPG, JPEG, PNG hoặc WEBP.");
+                this.value = "";
+                resetNewRoomPreview();
+                return;
+            }
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Ảnh không được vượt quá 5 MB.");
+                this.value = "";
+                resetNewRoomPreview();
+                return;
+            }
+
+            newRoomPreviewUrl = URL.createObjectURL(file);
+            newRoomPreview.src = newRoomPreviewUrl;
+            newRoomPreview.style.display = "block";
+            removeNewRoomImage.style.display = "inline-block";
+        });
+
+        removeNewRoomImage.addEventListener("click", function () {
+            newRoomImage.value = "";
+
+            if (newRoomPreviewUrl) {
+                URL.revokeObjectURL(newRoomPreviewUrl);
+                newRoomPreviewUrl = null;
+            }
+
+            resetNewRoomPreview();
+        });
+
+        function resetNewRoomPreview() {
+            newRoomPreview.removeAttribute("src");
+            newRoomPreview.style.display = "none";
+            removeNewRoomImage.style.display = "none";
+        }
+    </script>
+}

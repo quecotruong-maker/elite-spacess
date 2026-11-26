@@ -1,0 +1,58 @@
+﻿@model IEnumerable<QuanLyKhachSan.Models.HoaDon>
+
+@{
+    ViewData["Title"] = "Hóa đơn";
+}
+
+<h1>Danh sách hóa đơn</h1>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        Chưa có hóa đơn nào. Hóa đơn được tạo tự động khi bạn check-out một đơn đặt phòng.
+    </div>
+}
+else
+{
+    <p class="text-muted">
+        Tổng @Model.Count() hóa đơn, chưa thu: @Model.Count(h => !h.DaThanhToan) hóa đơn
+        (@Model.Where(h => !h.DaThanhToan).Sum(h => h.TongTien).ToString("N0") đ).
+    </p>
+}
+
+<table class="table align-middle">
+    <thead>
+        <tr>
+            <th>Mã HĐ</th>
+            <th>Khách hàng</th>
+            <th>Phòng</th>
+            <th>Ngày lập</th>
+            <th>Tổng tiền</th>
+            <th>Thanh toán</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.MaHoaDon</td>
+                <td>@item.DatPhong?.KhachHang?.HoTen</td>
+                <td>@item.DatPhong?.Phong?.SoPhong</td>
+                <td>@item.NgayLap.ToString("dd/MM/yyyy HH:mm")</td>
+                <td>@item.TongTien.ToString("N0") đ</td>
+                <td>
+                    @if (item.DaThanhToan)
+                    {
+                        <span class="badge bg-success">Đã thanh toán</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">Chưa thanh toán</span>
+                    }
+                </td>
+                <td><a asp-action="Details" asp-route-id="@item.MaHoaDon">Xem / In</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

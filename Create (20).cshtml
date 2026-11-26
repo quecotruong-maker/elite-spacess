@@ -1,0 +1,415 @@
+@model QuanLyKhachSan.Models.Phong
+
+@{
+    ViewData["Title"] = "Thêm phòng";
+}
+
+<style>
+    .create-room-page {
+        padding: 10px 0 35px;
+        animation: createFadeIn .45s ease;
+    }
+
+    .create-room-header {
+        margin-bottom: 25px;
+    }
+
+    .create-room-title {
+        color: #183b4e;
+        font-size: 27px;
+        font-weight: 800;
+        margin-bottom: 7px;
+    }
+
+    .create-room-subtitle {
+        color: #82939e;
+        font-size: 14px;
+        margin: 0;
+    }
+
+    .create-room-card {
+        background: #fff;
+        border: 1px solid #e8eef2;
+        border-radius: 20px;
+        box-shadow: 0 8px 28px rgba(32, 71, 91, .06);
+        overflow: hidden;
+    }
+
+    .create-room-card-header {
+        padding: 22px 28px;
+        border-bottom: 1px solid #edf1f3;
+        background: linear-gradient(135deg, #f5fbfc, #fff);
+    }
+
+        .create-room-card-header h5 {
+            color: #24485a;
+            font-weight: 800;
+            margin: 0 0 5px;
+        }
+
+        .create-room-card-header p {
+            color: #91a0a9;
+            font-size: 13px;
+            margin: 0;
+        }
+
+    .create-room-content {
+        padding: 28px;
+    }
+
+    .room-form-label {
+        color: #365666;
+        font-size: 14px;
+        font-weight: 700;
+        margin-bottom: 9px;
+    }
+
+    .room-form-control {
+        min-height: 47px;
+        border: 1px solid #dfe8ed;
+        border-radius: 11px;
+        padding: 10px 14px;
+        color: #294b5b;
+        transition: all .2s ease;
+    }
+
+        .room-form-control:focus {
+            border-color: #16a1ad;
+            box-shadow: 0 0 0 3px rgba(22, 161, 173, .12);
+        }
+
+    .room-form-help {
+        color: #91a0a9;
+        font-size: 12px;
+        margin-top: 7px;
+    }
+
+        .room-form-help a {
+            color: #078e9e;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+            .room-form-help a:hover {
+                text-decoration: underline;
+            }
+
+    .room-upload-box {
+        border: 2px dashed #cbdde4;
+        border-radius: 15px;
+        background: #f8fbfc;
+        padding: 20px;
+        text-align: center;
+        transition: all .25s ease;
+    }
+
+        .room-upload-box:hover {
+            border-color: #18a0ad;
+            background: #f1fafb;
+        }
+
+    .room-upload-icon {
+        font-size: 35px;
+        color: #16a0ad;
+        margin-bottom: 8px;
+    }
+
+    .room-preview {
+        width: 100%;
+        height: 230px;
+        object-fit: cover;
+        border-radius: 13px;
+        margin-top: 15px;
+        display: none;
+        border: 1px solid #e5edf0;
+    }
+
+    .room-preview-placeholder {
+        height: 170px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: #9aabb4;
+        gap: 9px;
+    }
+
+        .room-preview-placeholder i {
+            font-size: 42px;
+        }
+
+    .room-form-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 11px;
+        margin-top: 28px;
+        padding-top: 22px;
+        border-top: 1px solid #edf1f3;
+    }
+
+    .room-form-btn {
+        min-height: 45px;
+        padding: 10px 22px;
+        border: none;
+        border-radius: 11px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all .25s ease;
+    }
+
+        .room-form-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(30, 70, 90, .12);
+        }
+
+    .btn-save-room {
+        color: #fff;
+        background: linear-gradient(135deg, #0799a8, #087c91);
+    }
+
+    .btn-cancel-room {
+        color: #526b78;
+        background: #edf2f5;
+    }
+
+    @@keyframes createFadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .create-room-content {
+            padding: 20px;
+        }
+
+        .create-room-title {
+            font-size: 23px;
+        }
+
+        .room-form-btn {
+            flex: 1 1 100%;
+        }
+    }
+</style>
+
+<div class="container-fluid create-room-page">
+
+    <div class="create-room-header">
+        <h2 class="create-room-title">Thêm phòng mới</h2>
+        <p class="create-room-subtitle">
+            Nhập thông tin phòng và tải ảnh để bổ sung vào hệ thống khách sạn
+        </p>
+    </div>
+
+    <div class="create-room-card">
+
+        <div class="create-room-card-header">
+            <h5><i class="bi bi-plus-circle me-2"></i>Thông tin phòng</h5>
+            <p>Vui lòng điền đầy đủ các thông tin bên dưới</p>
+        </div>
+
+        <div class="create-room-content">
+
+            <form asp-action="Create" enctype="multipart/form-data">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger rounded-3"></div>
+
+                <div class="row g-4">
+
+                    <div class="col-lg-7">
+
+                        <div class="mb-4">
+                            <label asp-for="SoPhong" class="room-form-label">
+                                Số phòng
+                            </label>
+
+                            <input asp-for="SoPhong"
+                                   class="form-control room-form-control"
+                                   placeholder="Ví dụ: 101" />
+
+                            <span asp-validation-for="SoPhong"
+                                  class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="MaLoaiPhong" class="room-form-label">
+                                Loại phòng
+                            </label>
+
+                            <select asp-for="MaLoaiPhong"
+                                    class="form-select room-form-control"
+                                    asp-items="ViewBag.MaLoaiPhong">
+                                <option value="">-- Chọn loại phòng --</option>
+                            </select>
+
+                            <span asp-validation-for="MaLoaiPhong"
+                                  class="text-danger small"></span>
+
+                            <div class="room-form-help">
+                                Chưa có loại phù hợp?
+                                <a asp-controller="LoaiPhongs"
+                                   asp-action="Create">
+                                    Thêm loại phòng mới
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="TrangThai" class="room-form-label">
+                                Trạng thái phòng
+                            </label>
+
+                            <select asp-for="TrangThai"
+                                    class="form-select room-form-control">
+                                <option value="Trống">Trống</option>
+                                <option value="Bảo trì">Bảo trì</option>
+                            </select>
+
+                            <span asp-validation-for="TrangThai"
+                                  class="text-danger small"></span>
+
+                            <div class="room-form-help">
+                                Phòng mới chỉ có thể được tạo với trạng thái Trống hoặc Bảo trì.
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-lg-5">
+
+                        <label class="room-form-label">Ảnh phòng</label>
+
+                        <div class="room-upload-box">
+
+                            <div id="previewPlaceholder"
+                                 class="room-preview-placeholder">
+                                <i class="bi bi-cloud-arrow-up"></i>
+                                <strong>Chọn ảnh phòng</strong>
+                                <span class="small">JPG, JPEG, PNG hoặc WEBP</span>
+                            </div>
+
+                            <input type="file"
+                                   id="roomImageInput"
+                                   name="hinhAnh"
+                                   class="form-control room-form-control"
+                                   accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+
+                            <img id="roomImagePreview"
+                                 class="room-preview"
+                                 alt="Ảnh xem trước phòng" />
+
+                            <div class="room-form-help">
+                                Nên chọn ảnh rõ nét, thể hiện toàn bộ không gian phòng.
+                            </div>
+
+                            <button type="button"
+                                    id="removeRoomImage"
+                                    class="btn btn-sm btn-outline-danger mt-2"
+                                    style="display:none;">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Bỏ ảnh đã chọn
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="room-form-actions">
+
+                    <button type="submit" class="room-form-btn btn-save-room">
+                        <i class="bi bi-check-circle"></i>
+                        Lưu phòng
+                    </button>
+
+                    <a asp-action="Index"
+                       class="room-form-btn btn-cancel-room">
+                        <i class="bi bi-arrow-left"></i>
+                        Quay lại danh sách
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const roomImageInput = document.getElementById("roomImageInput");
+        const roomImagePreview = document.getElementById("roomImagePreview");
+        const previewPlaceholder = document.getElementById("previewPlaceholder");
+        const removeRoomImage = document.getElementById("removeRoomImage");
+
+        let previewUrl = null;
+
+        roomImageInput.addEventListener("change", function () {
+            const file = this.files[0];
+
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+                previewUrl = null;
+            }
+
+            if (!file) {
+                resetRoomPreview();
+                return;
+            }
+
+            const allowedTypes = [
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            ];
+
+            if (!allowedTypes.includes(file.type)) {
+                alert("Vui lòng chọn ảnh JPG, JPEG, PNG hoặc WEBP.");
+                this.value = "";
+                resetRoomPreview();
+                return;
+            }
+
+            previewUrl = URL.createObjectURL(file);
+            roomImagePreview.src = previewUrl;
+            roomImagePreview.style.display = "block";
+            previewPlaceholder.style.display = "none";
+            removeRoomImage.style.display = "inline-block";
+        });
+
+        removeRoomImage.addEventListener("click", function () {
+            roomImageInput.value = "";
+
+            if (previewUrl) {
+                URL.revokeObjectURL(previewUrl);
+                previewUrl = null;
+            }
+
+            resetRoomPreview();
+        });
+
+        function resetRoomPreview() {
+            roomImagePreview.removeAttribute("src");
+            roomImagePreview.style.display = "none";
+            previewPlaceholder.style.display = "flex";
+            removeRoomImage.style.display = "none";
+        }
+    </script>
+}

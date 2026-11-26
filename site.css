@@ -1,0 +1,1714 @@
+
+/* =========================================
+   HOTEL MANAGEMENT - MODERN UI
+========================================= */
+
+:root {
+    --primary: #2563A6;
+    --primary-dark: #174C85;
+    --primary-light: #EAF2FC;
+    --navy: #173B70;
+    --navy-dark: #102D57;
+    --navy-light: #244D83;
+    --background: #F3F6FC;
+    --surface: #FFFFFF;
+    --text: #18365F;
+    --muted: #7889A3;
+    --border: #E5EAF3;
+    --success: #16A879;
+    --warning: #F39A27;
+    --danger: #E64B61;
+    --sidebar-width: 250px;
+    --topbar-height: 76px;
+    --shadow: 0 4px 18px rgba(25, 55, 95, .06);
+    --radius: 14px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 14px;
+    min-height: 100%;
+    position: relative;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--background);
+    color: var(--text);
+    font-family: "Segoe UI", Arial, sans-serif;
+    line-height: 1.6;
+}
+
+/* =========================================
+   1. BỐ CỤC CHÍNH
+========================================= */
+
+.hotel-layout {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.hotel-main {
+    min-width: 0;
+    flex: 1;
+    margin-left: var(--sidebar-width);
+}
+
+.hotel-content {
+    min-height: calc(100vh - var(--topbar-height));
+    padding: 28px 32px 45px;
+    width: 100%;
+}
+
+/* =========================================
+   2. SIDEBAR
+========================================= */
+
+.hotel-sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background: linear-gradient( 180deg, var(--navy-dark) 0%, var(--navy) 65%, #214B7F 100% );
+    color: #FFFFFF;
+    box-shadow: 4px 0 20px rgba(16, 45, 87, .13);
+}
+
+    .hotel-sidebar::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    .hotel-sidebar::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,.2);
+        border-radius: 10px;
+    }
+
+/* LOGO */
+
+.hotel-logo {
+    min-height: 100px;
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    color: #FFFFFF !important;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,.12);
+    transition: background .2s ease;
+}
+
+    .hotel-logo:hover {
+        color: #FFFFFF !important;
+        background: rgba(255,255,255,.05);
+    }
+
+.hotel-logo-icon {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #438FE5, #1760BD);
+    border-radius: 13px;
+    color: #FFFFFF;
+    font-size: 25px;
+    font-weight: 800;
+    box-shadow: 0 5px 15px rgba(0,0,0,.15);
+}
+
+.hotel-logo-info {
+    min-width: 0;
+}
+
+.hotel-logo-name {
+    font-size: 23px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    line-height: 1.3;
+}
+
+.hotel-logo-caption {
+    font-size: 9px;
+    color: #C7D9F3;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+/* MENU */
+
+.sidebar-menu {
+    padding: 20px 13px;
+    flex: 1;
+}
+
+.sidebar-section-title {
+    padding: 12px 12px 10px;
+    color: #AFC6E9;
+    font-size: 10px;
+    font-weight: 750;
+    letter-spacing: 1.2px;
+}
+
+.sidebar-link {
+    min-height: 47px;
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 6px;
+    padding: 10px 13px;
+    color: #E8F0FC !important;
+    font-size: 13px;
+    font-weight: 550;
+    border-radius: 9px;
+    text-decoration: none;
+    transition: all .2s ease;
+}
+
+    .sidebar-link:hover {
+        color: #FFFFFF !important;
+        background: rgba(255,255,255,.12);
+        transform: translateX(3px);
+    }
+
+    .sidebar-link.active {
+        color: #FFFFFF !important;
+        background: linear-gradient(100deg, #3182DE, #1760BD);
+        box-shadow: 0 5px 14px rgba(0,0,0,.15);
+        font-weight: 700;
+    }
+
+.sidebar-icon {
+    width: 25px;
+    min-width: 25px;
+    font-size: 18px;
+    text-align: center;
+}
+
+/* CUỐI SIDEBAR */
+
+.sidebar-bottom {
+    margin: 12px;
+    padding: 17px 10px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,.13);
+    border-radius: 12px;
+    background: rgba(255,255,255,.07);
+}
+
+.sidebar-bottom-icon {
+    font-size: 25px;
+    margin-bottom: 3px;
+}
+
+.sidebar-bottom-title {
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: 750;
+    letter-spacing: .6px;
+}
+
+.sidebar-bottom-text {
+    color: #C4D7F2;
+    font-size: 10px;
+}
+
+/* =========================================
+   3. HEADER
+========================================= */
+
+.hotel-topbar {
+    height: var(--topbar-height);
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 0 30px;
+    background: rgba(255,255,255,.98);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 3px 14px rgba(31,61,100,.04);
+}
+
+.sidebar-toggle {
+    display: none;
+    border: none;
+    background: transparent;
+    color: var(--navy);
+    font-size: 23px;
+    cursor: pointer;
+}
+
+/* TIÊU ĐỀ HEADER */
+
+.topbar-heading {
+    min-width: 0;
+}
+
+.topbar-heading-title {
+    color: var(--navy);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .6px;
+}
+
+.topbar-heading-subtitle {
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: .7px;
+}
+
+/* KHU VỰC TÀI KHOẢN */
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 18px;
+    min-width: 0;
+}
+
+.topbar-account {
+    display: flex;
+    align-items: center;
+}
+
+    .topbar-account .navbar-nav {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+    }
+
+    .topbar-account .nav-item {
+        display: flex;
+        align-items: center;
+    }
+
+    .topbar-account .nav-link {
+        color: var(--text) !important;
+        font-size: 13px;
+        font-weight: 650;
+        padding: 8px 10px !important;
+    }
+
+        .topbar-account .nav-link:hover {
+            color: var(--primary) !important;
+            background: var(--primary-light);
+            border-radius: 8px;
+        }
+
+    .topbar-account form {
+        margin: 0;
+    }
+
+    .topbar-account .btn,
+    .topbar-account button {
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+/* THÔNG BÁO */
+
+.topbar-notification {
+    display: flex;
+    align-items: center;
+}
+
+    .topbar-notification .nav-link {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 8px 10px !important;
+        color: var(--navy) !important;
+        border-radius: 10px;
+    }
+
+        .topbar-notification .nav-link:hover {
+            background: #EEF4FD;
+        }
+
+    .topbar-notification .badge {
+        font-size: 10px;
+    }
+
+/* =========================================
+   4. TIÊU ĐỀ VÀ LIÊN KẾT
+========================================= */
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--navy);
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+}
+
+a {
+    color: var(--primary);
+    text-decoration: none;
+    transition: color .2s ease;
+}
+
+    a:hover {
+        color: var(--primary-dark);
+    }
+
+/* =========================================
+   5. NÚT BẤM
+========================================= */
+
+.btn {
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 600;
+    transition: all .2s ease;
+}
+
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #FFFFFF;
+}
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+        color: #FFFFFF;
+        transform: translateY(-1px);
+    }
+
+.btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+    .btn-outline-primary:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #FFFFFF;
+    }
+
+.btn-success {
+    background: #16885E;
+    border-color: #16885E;
+}
+
+.btn-danger {
+    background: #D94355;
+    border-color: #D94355;
+}
+
+.btn-warning {
+    background: #F2B33D;
+    border-color: #F2B33D;
+    color: #26364D;
+}
+
+.btn:focus,
+.btn:active:focus,
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 .2rem rgba(37, 105, 210, .16);
+}
+
+/* =========================================
+   6. BẢNG DỮ LIỆU
+========================================= */
+
+.table-responsive {
+    border-radius: 10px;
+}
+
+.table {
+    background: #FFFFFF;
+    border-color: var(--border);
+    margin-bottom: 0;
+}
+
+    .table thead th {
+        background: #F0F5FC;
+        color: var(--navy);
+        font-weight: 700;
+        border-bottom: 1px solid #DCE5F2;
+        padding: 13px 12px;
+        white-space: nowrap;
+    }
+
+    .table td {
+        padding: 11px 12px;
+        vertical-align: middle;
+    }
+
+    .table tbody tr:hover {
+        background: #F5F8FD;
+    }
+
+/* =========================================
+   7. BIỂU MẪU
+========================================= */
+
+.form-control,
+.form-select {
+    border: 1px solid #D6DFEC;
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: #34495E;
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary);
+    }
+
+.form-label {
+    color: var(--text);
+    font-weight: 600;
+}
+
+/* =========================================
+   8. CARD CHUNG
+========================================= */
+
+.card {
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.card-header {
+    background: #FFFFFF;
+    color: var(--navy);
+    border-bottom: 1px solid var(--border);
+    font-weight: 700;
+    padding: 14px 18px;
+}
+
+.card-body {
+    padding: 18px;
+}
+
+/* =========================================
+   9. THÔNG BÁO HỆ THỐNG
+========================================= */
+
+.alert {
+    border: none;
+    border-radius: 10px;
+    font-weight: 500;
+    box-shadow: 0 3px 12px rgba(30,50,80,.04);
+}
+
+.alert-success {
+    background: #E0F5EA;
+    color: #17633D;
+}
+
+.alert-danger {
+    background: #FCE8EB;
+    color: #A52E3D;
+}
+
+/* =========================================
+   10. DASHBOARD
+========================================= */
+
+.dashboard-heading {
+    color: var(--navy);
+    font-weight: 750;
+    border-left: 4px solid var(--primary);
+    padding-left: 12px;
+}
+
+.dashboard-card {
+    padding: 20px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: #FFFFFF;
+    box-shadow: var(--shadow);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+    .dashboard-card:hover,
+    .dashboard-info-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 22px rgba(32,62,105,.11);
+    }
+
+.dashboard-card-label {
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.dashboard-card-number {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 8px 0;
+}
+
+.dashboard-card-note {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* THẺ THỐNG KÊ */
+
+.dashboard-info-card {
+    height: 100%;
+    background: #FFFFFF;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.dashboard-info-label {
+    color: #60738D;
+    font-size: 13px;
+    font-weight: 600;
+    min-height: 42px;
+}
+
+.dashboard-info-number {
+    color: var(--navy);
+    font-size: 25px;
+    font-weight: 800;
+    margin: 8px 0;
+    overflow-wrap: anywhere;
+}
+
+.dashboard-info-note {
+    color: #8492A6;
+    font-size: 12px;
+}
+
+.revenue-card {
+    border-top: 3px solid var(--primary);
+}
+
+/* TRẠNG THÁI PHÒNG */
+
+.room-empty {
+    background: #E0EEFF;
+    color: #1457A5;
+    border-color: #C6DDF9;
+}
+
+.room-occupied {
+    background: #DFF5EA;
+    color: #17633D;
+    border-color: #BCE7CF;
+}
+
+.room-cleaning {
+    background: #FFF2DA;
+    color: #8A5A0A;
+    border-color: #F0D9A7;
+}
+
+.room-maintenance {
+    background: #FCE8EB;
+    color: #A52E3D;
+    border-color: #F0C5CC;
+}
+
+/* =========================================
+   11. ẢNH PHÒNG
+========================================= */
+
+.room-image {
+    width: 100%;
+    height: 230px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+.room-card {
+    height: 100%;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #FFFFFF;
+    box-shadow: var(--shadow);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+    .room-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 9px 25px rgba(32,62,105,.12);
+    }
+
+    .room-card .room-image {
+        border-radius: 0;
+    }
+
+/* =========================================
+   12. FOOTER
+========================================= */
+
+footer {
+    color: var(--muted);
+    background: #FFFFFF;
+    border-top: 1px solid var(--border);
+    padding: 15px 0;
+}
+
+/* =========================================
+   13. RESPONSIVE - TABLET
+========================================= */
+
+@media (max-width: 991px) {
+    :root {
+        --sidebar-width: 0px;
+    }
+
+    .hotel-sidebar {
+        width: 250px;
+        transform: translateX(-100%);
+        transition: transform .25s ease;
+    }
+
+    body.sidebar-open .hotel-sidebar {
+        transform: translateX(0);
+    }
+
+    .hotel-main {
+        margin-left: 0;
+    }
+
+    .sidebar-toggle {
+        display: block;
+    }
+
+    .hotel-topbar {
+        padding: 0 16px;
+        gap: 12px;
+    }
+
+    .hotel-content {
+        padding: 22px 18px 35px;
+    }
+
+    body.sidebar-open::after {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 1040;
+        background: rgba(10, 25, 48, .4);
+    }
+}
+
+/* =========================================
+   14. RESPONSIVE - ĐIỆN THOẠI
+========================================= */
+
+@media (max-width: 576px) {
+    :root {
+        --topbar-height: 65px;
+    }
+
+    .hotel-topbar {
+        gap: 8px;
+        padding: 0 10px;
+    }
+
+    .topbar-heading-title {
+        font-size: 11px;
+    }
+
+    .topbar-heading-subtitle {
+        font-size: 8px;
+    }
+
+    .topbar-right {
+        gap: 4px;
+    }
+
+    .topbar-account .nav-link {
+        font-size: 11px;
+        padding: 5px !important;
+    }
+
+    .hotel-content {
+        padding: 16px 11px 30px;
+    }
+
+    .dashboard-card {
+        padding: 14px;
+    }
+
+    .dashboard-card-number {
+        font-size: 25px;
+    }
+
+    .dashboard-info-card {
+        padding: 15px;
+    }
+
+    .dashboard-info-number {
+        font-size: 22px;
+    }
+
+    .table {
+        font-size: 12px;
+    }
+
+    h1 {
+        font-size: 1.45rem;
+    }
+
+    h2 {
+        font-size: 1.25rem;
+    }
+}
+
+/* =========================================
+   15. PLACEHOLDER
+========================================= */
+
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder {
+    color: var(--muted);
+    text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder {
+    text-align: start;
+}
+
+
+
+/* ==========================================
+   HOTEL MANAGEMENT - MODERN DESIGN SYSTEM
+   GIAO DIEN NANG CAP TOAN HE THONG
+========================================== */
+
+:root {
+    --primary: #3478F6;
+    --primary-dark: #245FD0;
+    --primary-light: #EDF4FF;
+    --navy: #172B4D;
+    --navy-dark: #101F38;
+    --background: #F5F7FB;
+    --surface: #FFFFFF;
+    --text: #24334D;
+    --muted: #8490A5;
+    --border: #E8ECF3;
+    --success: #18A878;
+    --warning: #E9A23B;
+    --danger: #E55353;
+    --sidebar-width: 258px;
+    --topbar-height: 78px;
+    --radius: 16px;
+    --shadow: 0 5px 24px rgba(28, 45, 78, .055);
+    --shadow-hover: 0 12px 30px rgba(28, 45, 78, .10);
+}
+
+/* NEN VA CHU */
+
+body {
+    background: var(--background);
+    color: var(--text);
+    font-family: "Segoe UI", Inter, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--navy);
+    font-weight: 700;
+    letter-spacing: -.35px;
+}
+
+h1 {
+    font-size: 27px;
+    font-weight: 750;
+}
+
+h2 {
+    font-size: 22px;
+}
+
+/* BO CUC */
+
+.hotel-layout {
+    min-height: 100vh;
+    background: var(--background);
+}
+
+.hotel-main {
+    min-width: 0;
+    background: var(--background);
+}
+
+.hotel-content {
+    padding: 32px 36px 50px;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+/* SIDEBAR */
+
+.hotel-sidebar {
+    width: var(--sidebar-width);
+    background: #142541;
+    background-image: linear-gradient(180deg, #192E50 0%, #12233E 100%);
+    box-shadow: 5px 0 25px rgba(15, 30, 55, .08);
+    border-right: 1px solid rgba(255,255,255,.04);
+}
+
+.hotel-logo {
+    min-height: 104px;
+    padding: 22px 24px;
+    border-bottom: 1px solid rgba(255,255,255,.09);
+}
+
+.hotel-logo-icon {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #65A4FF, #3478F6);
+    box-shadow: 0 7px 18px rgba(52,120,246,.28);
+    font-size: 23px;
+}
+
+.hotel-logo-name {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.hotel-logo-caption {
+    color: #AABBD5;
+    font-size: 9px;
+    letter-spacing: 1.1px;
+}
+
+.sidebar-menu {
+    padding: 23px 15px;
+}
+
+.sidebar-section-title {
+    padding: 14px 12px 11px;
+    color: #8297B8;
+    font-size: 10px;
+    font-weight: 750;
+    letter-spacing: 1.15px;
+}
+
+.sidebar-link {
+    min-height: 48px;
+    margin-bottom: 5px;
+    padding: 11px 14px;
+    gap: 13px;
+    color: #C7D3E5 !important;
+    border-radius: 11px;
+    font-size: 13px;
+    font-weight: 550;
+    transition: .2s ease;
+}
+
+    .sidebar-link:hover {
+        color: #FFFFFF !important;
+        background: rgba(255,255,255,.085);
+        transform: translateX(2px);
+    }
+
+    .sidebar-link.active {
+        color: #FFFFFF !important;
+        background: linear-gradient(110deg, #3478F6, #2865DB);
+        box-shadow: 0 5px 15px rgba(52,120,246,.25);
+        font-weight: 700;
+    }
+
+.sidebar-icon {
+    width: 25px;
+    min-width: 25px;
+    font-size: 18px;
+}
+
+.sidebar-bottom {
+    margin: 14px;
+    padding: 18px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,.10);
+    background: rgba(255,255,255,.045);
+}
+
+/* THANH TREN */
+
+.hotel-topbar {
+    height: var(--topbar-height);
+    padding: 0 36px;
+    background: rgba(255,255,255,.96);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 2px 12px rgba(30,50,80,.025);
+    backdrop-filter: blur(12px);
+}
+
+.topbar-heading-title {
+    color: var(--navy);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .6px;
+}
+
+.topbar-heading-subtitle {
+    color: var(--muted);
+    font-size: 10px;
+    letter-spacing: .8px;
+}
+
+.topbar-right {
+    gap: 20px;
+}
+
+.topbar-account .nav-link {
+    color: var(--text) !important;
+    font-size: 13px;
+    font-weight: 650;
+    border-radius: 9px;
+}
+
+    .topbar-account .nav-link:hover {
+        color: var(--primary) !important;
+        background: var(--primary-light);
+    }
+
+/* TIEU DE TRANG */
+
+.hotel-content h1:first-child,
+.hotel-content > h1 {
+    margin-bottom: 24px;
+}
+
+.dashboard-heading {
+    border-left: 4px solid var(--primary);
+    padding-left: 14px;
+    font-size: 25px;
+}
+
+/* CARD */
+
+.card,
+.dashboard-card,
+.dashboard-info-card,
+.room-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+    transition: box-shadow .22s ease, transform .22s ease;
+}
+
+    .card:hover,
+    .dashboard-card:hover,
+    .dashboard-info-card:hover {
+        box-shadow: var(--shadow-hover);
+    }
+
+.card-header {
+    padding: 17px 21px;
+    background: #FFFFFF;
+    border-bottom: 1px solid var(--border);
+    color: var(--navy);
+    font-weight: 700;
+}
+
+.card-body {
+    padding: 22px;
+}
+
+.dashboard-card,
+.dashboard-info-card {
+    padding: 22px;
+}
+
+.dashboard-info-label {
+    color: #718099;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.dashboard-info-number {
+    color: var(--navy);
+    font-size: 29px;
+    font-weight: 800;
+    letter-spacing: -.8px;
+}
+
+.dashboard-info-note {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+/* BUTTON */
+
+.btn {
+    min-height: 38px;
+    padding: 8px 16px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 650;
+    transition: .2s ease;
+}
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+.btn-primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 3px 9px rgba(52,120,246,.13);
+}
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        border-color: var(--primary-dark);
+    }
+
+.btn-outline-primary {
+    color: var(--primary);
+    border-color: #BBD0F5;
+}
+
+    .btn-outline-primary:hover {
+        background: var(--primary);
+        border-color: var(--primary);
+    }
+
+/* TABLE */
+
+.table-responsive {
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: #FFFFFF;
+}
+
+.table {
+    margin-bottom: 0;
+    background: #FFFFFF;
+    border-color: var(--border);
+}
+
+    .table thead th {
+        padding: 15px 14px;
+        background: #F7F9FC;
+        color: #66758D;
+        border-bottom: 1px solid var(--border);
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: .45px;
+        text-transform: uppercase;
+        white-space: nowrap;
+    }
+
+    .table tbody td {
+        padding: 14px;
+        color: #34445E;
+        font-size: 13px;
+        vertical-align: middle;
+    }
+
+    .table tbody tr {
+        transition: background .15s ease;
+    }
+
+        .table tbody tr:hover {
+            background: #F6F9FF;
+        }
+
+/* FORM */
+
+.form-label {
+    margin-bottom: 7px;
+    color: #43516A;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.form-control,
+.form-select {
+    min-height: 43px;
+    padding: 9px 13px;
+    color: var(--text);
+    background-color: #FFFFFF;
+    border: 1px solid #DDE3ED;
+    border-radius: 9px;
+    font-size: 13px;
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(52,120,246,.12);
+    }
+
+/* BADGE VA TRANG THAI */
+
+.badge {
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ANH PHONG */
+
+.room-image {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+}
+
+.room-card {
+    overflow: hidden;
+}
+
+    .room-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-hover);
+    }
+
+/* THONG BAO */
+
+.alert {
+    padding: 14px 18px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    font-size: 13px;
+}
+
+.alert-success {
+    color: #14734F;
+    background: #EAF8F1;
+    border-color: #D0F0E0;
+}
+
+.alert-danger {
+    color: #B93845;
+    background: #FFF0F1;
+    border-color: #F8D9DC;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 991px) {
+    .hotel-content {
+        padding: 25px 20px 40px;
+    }
+
+    .hotel-topbar {
+        padding: 0 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    :root {
+        --topbar-height: 65px;
+    }
+
+    .hotel-content {
+        padding: 19px 12px 30px;
+    }
+
+    .hotel-topbar {
+        padding: 0 12px;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .dashboard-info-card,
+    .dashboard-card {
+        padding: 16px;
+    }
+
+    .dashboard-info-number {
+        font-size: 24px;
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+
+    .table thead th,
+    .table tbody td {
+        padding: 10px;
+        font-size: 12px;
+    }
+}
+
+
+
+
+/* =====================================================
+   HOTEL MANAGEMENT V2
+   MODERN TEAL SAAS DASHBOARD
+   Global visual system + smooth interactions
+===================================================== */
+
+:root {
+    --primary: #16B8B0;
+    --primary-dark: #0D918F;
+    --primary-light: #DDF8F5;
+    --navy: #123B46;
+    --navy-dark: #0C2D37;
+    --navy-light: #1C5260;
+    --background: #EAF2F4;
+    --surface: #FFFFFF;
+    --text: #193B46;
+    --muted: #8299A2;
+    --border: #DFEAED;
+    --success: #20B486;
+    --warning: #F2AC55;
+    --danger: #E66C78;
+    --sidebar-width: 258px;
+    --topbar-height: 76px;
+    --radius: 18px;
+    --shadow: 0 8px 28px rgba(22, 65, 77, .07);
+    --shadow-hover: 0 16px 36px rgba(22, 65, 77, .13);
+}
+
+/* NỀN TOÀN HỆ THỐNG */
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background: radial-gradient(circle at 85% 5%, rgba(80, 205, 194, .10), transparent 28%), linear-gradient(135deg, #EDF4F5 0%, #E8F1F3 100%);
+    color: var(--text);
+    font-family: "Segoe UI", Inter, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* SIDEBAR */
+
+.hotel-sidebar {
+    background: radial-gradient(circle at 0% 0%, rgba(41, 194, 184, .16), transparent 35%), linear-gradient(165deg, #123E49 0%, #0D303B 55%, #102F3A 100%);
+    border-right: 1px solid rgba(255,255,255,.07);
+    box-shadow: 8px 0 35px rgba(12, 45, 55, .12);
+    transition: width .35s cubic-bezier(.2,.8,.2,1), transform .35s cubic-bezier(.2,.8,.2,1);
+}
+
+.hotel-logo {
+    min-height: 104px;
+    border-bottom: 1px solid rgba(255,255,255,.09);
+}
+
+.hotel-logo-icon {
+    background: linear-gradient(135deg, #46D8CE, #119D9B);
+    border-radius: 16px;
+    box-shadow: 0 8px 22px rgba(22,184,176,.28);
+    transition: transform .35s ease, box-shadow .35s ease;
+}
+
+.hotel-logo:hover .hotel-logo-icon {
+    transform: rotate(-7deg) scale(1.07);
+    box-shadow: 0 10px 28px rgba(22,184,176,.4);
+}
+
+.sidebar-section-title {
+    color: #80B8BC;
+    letter-spacing: 1.5px;
+    font-size: 10px;
+}
+
+.sidebar-link {
+    position: relative;
+    min-height: 49px;
+    margin: 5px 0;
+    border: 1px solid transparent;
+    border-radius: 13px;
+    color: #D0E4E7 !important;
+    transition: background .28s ease, color .28s ease, transform .28s cubic-bezier(.2,.8,.2,1), border-color .28s ease, box-shadow .28s ease;
+}
+
+    .sidebar-link:hover {
+        background: rgba(100, 220, 211, .10);
+        border-color: rgba(120, 230, 220, .12);
+        transform: translateX(5px);
+    }
+
+    .sidebar-link.active {
+        color: #FFFFFF !important;
+        background: linear-gradient(105deg, #1CBDB4, #159B9B);
+        border-color: rgba(255,255,255,.18);
+        box-shadow: 0 7px 20px rgba(14, 173, 166, .27);
+    }
+
+        .sidebar-link.active::before {
+            content: "";
+            position: absolute;
+            left: -13px;
+            top: 10px;
+            bottom: 10px;
+            width: 3px;
+            border-radius: 0 5px 5px 0;
+            background: #73F2E5;
+        }
+
+.sidebar-icon {
+    transition: transform .25s ease;
+}
+
+.sidebar-link:hover .sidebar-icon {
+    transform: scale(1.13);
+}
+
+.sidebar-bottom {
+    background: rgba(255,255,255,.055);
+    border: 1px solid rgba(255,255,255,.11);
+    border-radius: 17px;
+    backdrop-filter: blur(12px);
+}
+
+/* THANH HEADER */
+
+.hotel-topbar {
+    background: rgba(255,255,255,.82);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(206, 225, 228, .75);
+    box-shadow: 0 5px 22px rgba(23, 67, 78, .035);
+}
+
+.topbar-heading-title {
+    color: #174651;
+    font-size: 13px;
+    letter-spacing: 1px;
+}
+
+.topbar-heading-subtitle {
+    color: #8AA4AA;
+    letter-spacing: 1.1px;
+}
+
+/* KHU VỰC NỘI DUNG */
+
+.hotel-content {
+    padding: 30px 36px 48px;
+}
+
+    .hotel-content > * {
+        animation: hotelFadeUp .55s cubic-bezier(.2,.7,.25,1) both;
+    }
+
+@keyframes hotelFadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* TIÊU ĐỀ */
+
+h1, h2, h3, h4, h5, h6 {
+    color: #174651;
+    letter-spacing: -.35px;
+}
+
+h1 {
+    font-size: clamp(1.55rem, 2vw, 2rem);
+    font-weight: 800;
+}
+
+h2 {
+    font-weight: 750;
+}
+
+/* THẺ THỐNG KÊ */
+
+.dashboard-info-card,
+.dashboard-card {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg, #FFFFFF 0%, #F8FCFC 100%);
+    border: 1px solid rgba(215, 232, 234, .9);
+    border-radius: 19px;
+    box-shadow: var(--shadow);
+    transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease, border-color .35s ease;
+}
+
+    .dashboard-info-card::after,
+    .dashboard-card::after {
+        content: "";
+        position: absolute;
+        width: 120px;
+        height: 120px;
+        right: -55px;
+        top: -60px;
+        border-radius: 50%;
+        background: rgba(37, 194, 183, .055);
+        pointer-events: none;
+        transition: transform .45s ease;
+    }
+
+    .dashboard-info-card:hover,
+    .dashboard-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-hover);
+        border-color: rgba(22, 184, 176, .3);
+    }
+
+        .dashboard-info-card:hover::after,
+        .dashboard-card:hover::after {
+            transform: scale(1.6);
+        }
+
+.dashboard-info-number,
+.dashboard-card-number {
+    color: #174D59;
+    font-weight: 850;
+    letter-spacing: -1px;
+}
+
+.dashboard-info-label,
+.dashboard-card-label {
+    color: #66818A;
+}
+
+.dashboard-info-note,
+.dashboard-card-note {
+    color: #91A6AC;
+}
+
+/* CARD VÀ KHUNG NỘI DUNG */
+
+.card,
+.room-card {
+    border: 1px solid #DFEAED;
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    transition: transform .3s ease, box-shadow .3s ease, border-color .3s ease;
+}
+
+    .card:hover {
+        border-color: #D0E7E6;
+    }
+
+.card-header {
+    background: linear-gradient(135deg, #FFFFFF, #F5FAFA);
+    color: #174651;
+    border-bottom: 1px solid #E5EFF0;
+    padding: 17px 20px;
+}
+
+/* NÚT BẤM */
+
+.btn {
+    border-radius: 11px;
+    font-weight: 650;
+    transition: transform .22s ease, box-shadow .22s ease, background .22s ease, border-color .22s ease;
+}
+
+.btn-primary {
+    background: linear-gradient(120deg, #1DBCB3, #119B9A);
+    border-color: transparent;
+    box-shadow: 0 5px 13px rgba(20, 169, 161, .17);
+}
+
+    .btn-primary:hover {
+        background: linear-gradient(120deg, #159F9A, #0D8587);
+        border-color: transparent;
+        box-shadow: 0 8px 19px rgba(20, 169, 161, .25);
+        transform: translateY(-2px);
+    }
+
+.btn-success {
+    background: #20AD83;
+    border-color: #20AD83;
+}
+
+.btn-danger {
+    background: #E66C78;
+    border-color: #E66C78;
+}
+
+.btn:active {
+    transform: scale(.97);
+}
+
+/* BẢNG */
+
+.table-responsive {
+    border: 1px solid #E0EAEC;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(22,65,77,.04);
+    background: #FFFFFF;
+}
+
+.table {
+    color: #355761;
+    border-color: #E8EFF0;
+}
+
+    .table thead th {
+        background: #EFF7F7;
+        color: #245560;
+        border-bottom: 1px solid #DCEBEC;
+        font-size: 12px;
+        font-weight: 750;
+        letter-spacing: .35px;
+        padding: 15px 13px;
+    }
+
+    .table td {
+        padding: 13px;
+        border-color: #EDF2F3;
+    }
+
+    .table tbody tr {
+        transition: background .2s ease;
+    }
+
+        .table tbody tr:hover {
+            background: #F1FAF9;
+        }
+
+/* FORM */
+
+.form-control,
+.form-select {
+    min-height: 43px;
+    border: 1px solid #D8E6E8;
+    border-radius: 11px;
+    background-color: #FBFDFD;
+    transition: border-color .25s ease, box-shadow .25s ease, background .25s ease;
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #36BDB5;
+        background: #FFFFFF;
+        box-shadow: 0 0 0 4px rgba(30, 185, 176, .12);
+    }
+
+.form-label {
+    color: #355B65;
+    font-weight: 650;
+}
+
+/* ẢNH PHÒNG */
+
+.room-card {
+    overflow: hidden;
+    background: #FFFFFF;
+}
+
+    .room-card:hover {
+        transform: translateY(-7px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .room-card .room-image {
+        transition: transform .55s cubic-bezier(.2,.7,.2,1);
+    }
+
+    .room-card:hover .room-image {
+        transform: scale(1.045);
+    }
+
+/* ALERT */
+
+.alert {
+    border-radius: 14px;
+    backdrop-filter: blur(10px);
+    animation: hotelFadeUp .4s ease both;
+}
+
+/* BADGE / TRẠNG THÁI */
+
+.badge {
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-weight: 650;
+}
+
+/* HIỆU ỨNG FOCUS */
+
+a:focus-visible,
+button:focus-visible {
+    outline: 3px solid rgba(35, 190, 180, .35);
+    outline-offset: 3px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 991px) {
+    .hotel-content {
+        padding: 24px 20px 38px;
+    }
+
+    .hotel-sidebar {
+        box-shadow: 15px 0 40px rgba(8, 37, 45, .25);
+    }
+}
+
+@media (max-width: 576px) {
+    .hotel-content {
+        padding: 17px 12px 30px;
+    }
+
+    .dashboard-info-card,
+    .dashboard-card {
+        border-radius: 15px;
+    }
+}
+
+/* TÔN TRỌNG CÀI ĐẶT GIẢM CHUYỂN ĐỘNG */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}

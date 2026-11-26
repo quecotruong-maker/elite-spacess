@@ -1,0 +1,100 @@
+﻿@model IEnumerable<QuanLyKhachSan.Models.Phong>
+
+@{
+    ViewData["Title"] = "Tìm phòng trống";
+    string ngayDen = ViewBag.NgayDen ?? "";
+    string ngayDi = ViewBag.NgayDi ?? "";
+    bool daTimKiem = ViewBag.DaTimKiem ?? false;
+}
+
+<h1>Tìm phòng trống theo ngày</h1>
+
+<div class="card p-3 mb-4">
+    <form asp-action="TimPhongTrong" method="get">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Ngày đến</label>
+                <input type="date"
+                       name="ngayDen"
+                       value="@ngayDen"
+                       class="form-control"
+                       required />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Ngày đi</label>
+                <input type="date"
+                       name="ngayDi"
+                       value="@ngayDi"
+                       class="form-control"
+                       required />
+            </div>
+
+            <div class="col-md-4 d-flex align-items-end">
+                <button type="submit" class="btn btn-success">
+                    Tìm phòng
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+@if (ViewBag.Loi != null)
+{
+    <div class="alert alert-danger">
+        @ViewBag.Loi
+    </div>
+}
+
+@if (daTimKiem && ViewBag.Loi == null)
+{
+    <h5>Kết quả tìm kiếm: @Model.Count() phòng trống</h5>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning">
+            Không tìm thấy phòng trống trong khoảng thời gian này.
+        </div>
+    }
+    else
+    {
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Số phòng</th>
+                    <th>Loại phòng</th>
+                    <th>Giá một đêm</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.SoPhong</td>
+                        <td>@item.LoaiPhong?.TenLoai</td>
+                        <td>@((item.LoaiPhong?.GiaMotDem ?? 0).ToString("N0")) đ</td>
+                        <td>@item.TrangThai</td>
+                        <td>
+                            <a asp-controller="DatPhongs"
+                               asp-action="Create"
+                               asp-route-maPhong="@item.MaPhong"
+                               asp-route-ngayDen="@ngayDen"
+                               asp-route-ngayDi="@ngayDi"
+                               class="btn btn-sm btn-primary">
+                                Đặt phòng
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+<p>
+    <a asp-action="Index" class="btn btn-outline-secondary">
+        Quay lại danh sách phòng
+    </a>
+</p>

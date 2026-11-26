@@ -1,0 +1,854 @@
+﻿@model QuanLyKhachSan.Models.HoaDon
+
+@{
+    ViewData["Title"] = "Chi tiết hóa đơn";
+
+    var d = Model.DatPhong!;
+
+    var soDem = Math.Max(
+        1,
+        (d.NgayDi.Date - d.NgayDen.Date).Days
+    );
+
+    var gia = d.Phong?.LoaiPhong?.GiaMotDem ?? 0;
+
+    var cacKhoanThanhToan = ViewBag.CacKhoanThanhToan
+        as IEnumerable<QuanLyKhachSan.Models.ThanhToan>
+        ?? Enumerable.Empty<QuanLyKhachSan.Models.ThanhToan>();
+
+    var cacKhoanThanhToanThanhCong = cacKhoanThanhToan
+        .Where(t => t.TrangThai == "ThanhCong")
+        .ToList();
+
+    var tienCoc = cacKhoanThanhToanThanhCong
+        .Where(t => t.LoaiThanhToan == "TienCoc")
+        .Sum(t => t.SoTien);
+
+    var tienDaThu = cacKhoanThanhToanThanhCong
+        .Sum(t => t.SoTien);
+
+    var tienConLai = Math.Max(0, Model.TongTien - tienDaThu);
+
+    var daThuDu = Model.DaThanhToan || tienConLai <= 0;
+}
+
+<style>
+    body {
+        background: #f1f3f5;
+    }
+
+    .receipt-wrapper {
+        padding: 25px 10px;
+    }
+
+    .receipt {
+        width: 72mm;
+        margin: 0 auto;
+        padding: 5mm 3mm;
+        background: white;
+        color: #111;
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        line-height: 1.5;
+        box-shadow: 0 2px 15px rgba(0,0,0,.12);
+    }
+
+        .receipt h2 {
+            font-size: 19px;
+            font-weight: 800;
+            text-align: center;
+            margin: 0 0 3px;
+            letter-spacing: 1px;
+        }
+
+    .receipt-subtitle {
+        text-align: center;
+        font-size: 10px;
+        margin-bottom: 12px;
+    }
+
+    .receipt-title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 15px;
+        margin: 12px 0 8px;
+    }
+
+    .receipt-center {
+        text-align: center;
+    }
+
+    .receipt-line {
+        border-top: 1px dashed #333;
+        margin: 9px 0;
+    }
+
+    .receipt-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 5px;
+        margin: 4px 0;
+    }
+
+    .receipt-section {
+        font-weight: bold;
+        margin: 10px 0 5px;
+        text-transform: uppercase;
+    }
+
+    .receipt-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11px;
+        margin-top: 7px;
+    }
+
+        .receipt-table th {
+            border-top: 1px dashed #333;
+            border-bottom: 1px dashed #333;
+            padding: 5px 1px;
+            text-align: left;
+        }
+
+        .receipt-table td {
+            padding: 5px 1px;
+            vertical-align: top;
+        }
+
+        .receipt-table .money {
+            text-align: right;
+            white-space: nowrap;
+        }
+
+    .receipt-total {
+        font-size: 17px;
+        font-weight: 800;
+    }
+
+    .receipt-status {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 8px;
+    }
+
+    .receipt-thanks {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 15px;
+    }
+
+    .receipt-footer {
+        text-align: center;
+        font-size: 10px;
+        margin-top: 5px;
+    }
+
+    .payment-container {
+        max-width: 760px;
+        margin: 25px auto;
+    }
+
+    .payment-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 3px 15px rgba(0,0,0,.06);
+        margin-bottom: 20px;
+    }
+
+    .payment-method {
+        border: 1px solid #dee2e6;
+        border-radius: 12px;
+        padding: 18px;
+        height: 100%;
+        background: white;
+        transition: .2s ease;
+    }
+
+        .payment-method:hover {
+            border-color: #8eb8c8;
+            box-shadow: 0 5px 18px rgba(40,100,120,.08);
+        }
+
+        .payment-method h5 {
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #174b5a;
+        }
+
+    .qr-illustration {
+        width: 180px;
+        height: 180px;
+        margin: 18px auto;
+        border: 1px solid #dce5e9;
+        border-radius: 14px;
+        background: linear-gradient(145deg, #f4fbfd, #e5f3f7);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        color: #2587a0;
+    }
+
+        .qr-illustration i {
+            font-size: 65px;
+        }
+
+        .qr-illustration strong {
+            font-size: 13px;
+            letter-spacing: .5px;
+        }
+
+    .payment-amount {
+        font-size: 25px;
+        font-weight: 800;
+        color: #198754;
+    }
+
+    .payment-button {
+        width: 100%;
+        border-radius: 9px;
+        padding: 11px;
+        font-weight: 600;
+    }
+
+    .receipt-actions {
+        text-align: center;
+        margin: 20px auto 40px;
+    }
+
+    .payment-modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(13, 35, 45, .55);
+        backdrop-filter: blur(3px);
+        justify-content: center;
+        align-items: center;
+        padding: 18px;
+    }
+
+        .payment-modal-overlay.show {
+            display: flex;
+        }
+
+    .payment-modal {
+        width: 100%;
+        max-width: 430px;
+        background: white;
+        border-radius: 18px;
+        padding: 28px;
+        box-shadow: 0 15px 50px rgba(0,0,0,.2);
+        animation: modalAppear .2s ease;
+    }
+
+    @@keyframes modalAppear {
+        from {
+            opacity: 0;
+            transform: translateY(12px) scale(.98);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    .modal-icon {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: #e8f5f8;
+        color: #2587a0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 15px;
+        font-size: 27px;
+    }
+
+    .modal-money {
+        background: #f2f8fa;
+        border: 1px solid #e0edf1;
+        border-radius: 12px;
+        padding: 17px;
+        margin: 18px 0;
+        text-align: center;
+    }
+
+        .modal-money .amount {
+            color: #198754;
+            font-size: 28px;
+            font-weight: 800;
+            margin-top: 5px;
+        }
+
+    .modal-description {
+        color: #687780;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 22px;
+    }
+
+        .modal-actions button {
+            flex: 1;
+            border-radius: 9px;
+            padding: 11px;
+            font-weight: 600;
+        }
+
+    .modal-cancel {
+        border: 1px solid #d7e0e4;
+        background: white;
+        color: #52636b;
+    }
+
+        .modal-cancel:hover {
+            background: #f1f4f5;
+        }
+
+    .modal-confirm {
+        border: none;
+        background: #159f83;
+        color: white;
+    }
+
+        .modal-confirm:hover {
+            background: #10866f;
+        }
+
+    @@media (max-width: 576px) {
+        .payment-card {
+            padding: 18px;
+        }
+
+        .payment-modal {
+            padding: 22px;
+        }
+    }
+
+    @@media print {
+        @@page {
+            size: 80mm auto;
+            margin: 0;
+        }
+
+        html, body {
+            width: 80mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+        }
+
+            body * {
+                visibility: hidden;
+            }
+
+        .receipt-wrapper,
+        .receipt-wrapper * {
+            visibility: visible;
+        }
+
+        .receipt-wrapper {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 80mm !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .receipt {
+            width: 72mm !important;
+            margin: 0 !important;
+            padding: 3mm !important;
+            box-shadow: none !important;
+            font-size: 11px;
+        }
+
+        .receipt-actions,
+        .payment-container,
+        .payment-modal-overlay,
+        header,
+        footer,
+        .navbar {
+            display: none !important;
+        }
+
+        * {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+
+<!-- HÓA ĐƠN IN -->
+<div class="receipt-wrapper">
+    <div class="receipt">
+
+        <h2>HOTEL MANAGEMENT</h2>
+
+        <div class="receipt-subtitle">
+            HOTEL MANAGEMENT SYSTEM
+        </div>
+
+        <div class="receipt-line"></div>
+
+        <div class="receipt-title">
+            HÓA ĐƠN THANH TOÁN
+        </div>
+
+        <div class="receipt-center">
+            Mã hóa đơn: #@Model.MaHoaDon
+        </div>
+
+        <div class="receipt-center">
+            Ngày lập: @Model.NgayLap.ToString("dd/MM/yyyy HH:mm")
+        </div>
+
+        <div class="receipt-line"></div>
+
+        <div class="receipt-section">
+            THÔNG TIN KHÁCH HÀNG
+        </div>
+
+        <div class="receipt-row">
+            <span>Khách hàng:</span>
+            <strong>@d.KhachHang?.HoTen</strong>
+        </div>
+
+        <div class="receipt-row">
+            <span>Điện thoại:</span>
+            <strong>@d.KhachHang?.SoDienThoai</strong>
+        </div>
+
+        <div class="receipt-line"></div>
+
+        <div class="receipt-section">
+            THÔNG TIN LƯU TRÚ
+        </div>
+
+        <div class="receipt-row">
+            <span>Phòng:</span>
+            <strong>@d.Phong?.SoPhong</strong>
+        </div>
+
+        <div class="receipt-row">
+            <span>Loại phòng:</span>
+            <strong>@d.Phong?.LoaiPhong?.TenLoai</strong>
+        </div>
+
+        <div class="receipt-row">
+            <span>Ngày nhận:</span>
+            <strong>@d.NgayDen.ToString("dd/MM/yyyy")</strong>
+        </div>
+
+        <div class="receipt-row">
+            <span>Ngày trả:</span>
+            <strong>@d.NgayDi.ToString("dd/MM/yyyy")</strong>
+        </div>
+
+        <div class="receipt-row">
+            <span>Số đêm:</span>
+            <strong>@soDem</strong>
+        </div>
+
+        <div class="receipt-line"></div>
+
+        <div class="receipt-section">
+            CHI TIẾT TIỀN PHÒNG
+        </div>
+
+        <table class="receipt-table">
+            <thead>
+                <tr>
+                    <th>Nội dung</th>
+                    <th class="money">SL</th>
+                    <th class="money">Đơn giá</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Tiền phòng</td>
+                    <td class="money">@soDem</td>
+                    <td class="money">@gia.ToString("N0")</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="receipt-line"></div>
+
+        <div class="receipt-section">
+            TỔNG KẾT THANH TOÁN
+        </div>
+
+        <div class="receipt-row receipt-total">
+            <span>TỔNG TIỀN:</span>
+            <span>@Model.TongTien.ToString("N0") đ</span>
+        </div>
+
+        <div class="receipt-row">
+            <span>Tiền cọc đã thu:</span>
+            <strong>@tienCoc.ToString("N0") đ</strong>
+        </div>
+
+        <div class="receipt-row">
+            <span>Tổng tiền đã thu:</span>
+            <strong>@tienDaThu.ToString("N0") đ</strong>
+        </div>
+
+        <div class="receipt-row">
+            <span>Còn phải thu:</span>
+            <strong>@tienConLai.ToString("N0") đ</strong>
+        </div>
+
+        <div class="receipt-line"></div>
+
+        <div class="receipt-status">
+            @if (daThuDu)
+            {
+                <span>*** ĐÃ THANH TOÁN ĐỦ ***</span>
+            }
+            else
+            {
+                <span>*** CHƯA THANH TOÁN ĐỦ ***</span>
+            }
+        </div>
+
+        <div class="receipt-line"></div>
+
+        <div class="receipt-thanks">
+            XIN CẢM ƠN QUÝ KHÁCH!
+        </div>
+
+        <div class="receipt-footer">
+            Hẹn gặp lại quý khách!
+            <br />
+            HOTEL MANAGEMENT
+        </div>
+
+    </div>
+</div>
+
+<!-- KHU VỰC THANH TOÁN -->
+<div class="payment-container d-print-none">
+
+    @if (TempData["ThongBao"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["ThongBao"]
+        </div>
+    }
+
+    @if (TempData["Loi"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Loi"]
+        </div>
+    }
+
+    <div class="payment-card">
+
+        <h4 class="fw-bold mb-4">
+            <i class="bi bi-wallet2"></i>
+            Thông tin thanh toán
+        </h4>
+
+        <div class="d-flex justify-content-between mb-3">
+            <span>Tổng tiền phòng</span>
+            <strong>@Model.TongTien.ToString("N0") đ</strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+            <span>Tiền cọc đã thanh toán</span>
+            <strong class="text-success">
+                @tienCoc.ToString("N0") đ
+            </strong>
+        </div>
+
+        <div class="d-flex justify-content-between mb-3">
+            <span>Tổng tiền đã thu</span>
+            <strong class="text-success">
+                @tienDaThu.ToString("N0") đ
+            </strong>
+        </div>
+
+        <hr />
+
+        <div class="d-flex justify-content-between align-items-center">
+            <span class="fw-bold">Còn phải thanh toán</span>
+            <span class="payment-amount">
+                @tienConLai.ToString("N0") đ
+            </span>
+        </div>
+
+        <div class="mt-3">
+            @if (daThuDu)
+            {
+                <div class="alert alert-success mb-0">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <strong>Hóa đơn đã được thanh toán đầy đủ.</strong>
+                </div>
+            }
+            else if (tienCoc <= 0)
+            {
+                <div class="alert alert-info mb-0">
+                    <i class="bi bi-info-circle-fill"></i>
+                    Khách đặt phòng trực tiếp, chưa phát sinh tiền cọc.
+                    Có thể thanh toán toàn bộ tiền phòng tại quầy khi trả phòng.
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info mb-0">
+                    Vui lòng chọn phương thức thanh toán số tiền còn lại.
+                </div>
+            }
+        </div>
+
+    </div>
+
+    @if (!daThuDu && tienConLai > 0)
+    {
+        <div class="row g-3">
+
+            <!-- CHUYỂN KHOẢN MÔ PHỎNG -->
+            <div class="col-md-6">
+                <div class="payment-method">
+
+                    <h5>
+                        <i class="bi bi-qr-code"></i>
+                        Chuyển khoản mô phỏng
+                    </h5>
+
+                    <p class="text-muted small">
+                        Hình minh họa thanh toán, không dùng để chuyển tiền thật.
+                    </p>
+
+                    <div class="qr-illustration">
+                        <i class="bi bi-qr-code"></i>
+                        <strong>THANH TOÁN MÔ PHỎNG</strong>
+                    </div>
+
+                    <div class="text-center">
+                        <div class="small text-muted">
+                            Số tiền cần thanh toán
+                        </div>
+
+                        <div class="payment-amount">
+                            @tienConLai.ToString("N0") đ
+                        </div>
+                    </div>
+
+                    <div class="alert alert-warning small mt-3">
+                        Đây là giao dịch mô phỏng. Không có tiền thật
+                        được chuyển qua mã QR này.
+                    </div>
+
+                    <button type="button"
+                            class="btn btn-primary payment-button"
+                            onclick="moXacNhan('ChuyenKhoanMoPhong')">
+                        <i class="bi bi-check-circle"></i>
+                        Xác nhận chuyển khoản mô phỏng
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- TIỀN MẶT -->
+            <div class="col-md-6">
+                <div class="payment-method">
+
+                    <h5>
+                        <i class="bi bi-cash-stack"></i>
+                        Thanh toán tiền mặt
+                    </h5>
+
+                    <div class="text-center py-4">
+                        <i class="bi bi-wallet2"
+                           style="font-size:65px;color:#198754">
+                        </i>
+
+                        <h6 class="fw-bold mt-3">
+                            Thu tiền trực tiếp tại quầy
+                        </h6>
+
+                        <p class="text-muted small">
+                            Lễ tân nhận tiền mặt từ khách hàng
+                            và xác nhận sau khi đã kiểm tra.
+                        </p>
+
+                        <div class="payment-amount">
+                            @tienConLai.ToString("N0") đ
+                        </div>
+                    </div>
+
+                    <button type="button"
+                            class="btn btn-success payment-button"
+                            onclick="moXacNhan('TienMat')">
+                        <i class="bi bi-check-circle"></i>
+                        Xác nhận đã thu tiền mặt
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+    }
+
+</div>
+
+<!-- HỘP THOẠI XÁC NHẬN THANH TOÁN -->
+<div class="payment-modal-overlay"
+     id="paymentModal"
+     onclick="dongXacNhanNeuClickNen(event)">
+
+    <div class="payment-modal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="modalTitle">
+
+        <div class="modal-icon">
+            <i class="bi bi-shield-check" id="modalIcon"></i>
+        </div>
+
+        <h4 class="text-center fw-bold mb-2" id="modalTitle">
+            Xác nhận thanh toán
+        </h4>
+
+        <p class="modal-description text-center mb-0" id="modalDescription">
+            Vui lòng kiểm tra thông tin trước khi xác nhận.
+        </p>
+
+        <div class="modal-money">
+            <div class="small text-muted">
+                SỐ TIỀN THANH TOÁN
+            </div>
+
+            <div class="amount">
+                @tienConLai.ToString("N0") đ
+            </div>
+
+            <div class="small text-muted mt-2" id="modalMethod">
+                Phương thức thanh toán
+            </div>
+        </div>
+
+        <div class="alert alert-warning small mb-0" id="modalWarning">
+            Giao dịch này chỉ mang tính mô phỏng, không phát sinh chuyển tiền thật.
+        </div>
+
+        <form asp-action="ThanhToan"
+              asp-route-id="@Model.MaHoaDon"
+              method="post"
+              id="paymentForm">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="phuongThuc"
+                   id="phuongThucInput" />
+
+            <div class="modal-actions">
+                <button type="button"
+                        class="modal-cancel"
+                        onclick="dongXacNhan()">
+                    Hủy
+                </button>
+
+                <button type="submit"
+                        class="modal-confirm"
+                        id="modalSubmitButton">
+                    Xác nhận thanh toán
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+<!-- NÚT CHỨC NĂNG -->
+<div class="receipt-actions d-print-none">
+
+    <button type="button"
+            class="btn btn-primary"
+            onclick="window.print()">
+        <i class="bi bi-printer"></i>
+        In hóa đơn
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">
+        Về danh sách
+    </a>
+
+</div>
+
+<script>
+    function moXacNhan(phuongThuc) {
+        const modal = document.getElementById("paymentModal");
+        const input = document.getElementById("phuongThucInput");
+        const title = document.getElementById("modalTitle");
+        const description = document.getElementById("modalDescription");
+        const method = document.getElementById("modalMethod");
+        const warning = document.getElementById("modalWarning");
+        const icon = document.getElementById("modalIcon");
+        const submitButton = document.getElementById("modalSubmitButton");
+
+        input.value = phuongThuc;
+
+        if (phuongThuc === "ChuyenKhoanMoPhong") {
+            title.textContent = "Xác nhận thanh toán";
+            description.textContent =
+                "Bạn đang xác nhận thanh toán chuyển khoản mô phỏng cho hóa đơn này.";
+
+            method.textContent = "Phương thức: Chuyển khoản mô phỏng";
+            warning.textContent =
+                "Đây chỉ là giao dịch mô phỏng. Không có tiền thật được chuyển.";
+
+            icon.className = "bi bi-qr-code";
+            submitButton.textContent = "Xác nhận thanh toán";
+            submitButton.style.background = "#159f83";
+        }
+        else if (phuongThuc === "TienMat") {
+            title.textContent = "Xác nhận thu tiền mặt";
+            description.textContent =
+                "Vui lòng chỉ xác nhận sau khi đã nhận và kiểm tra đủ tiền mặt từ khách hàng.";
+
+            method.textContent = "Phương thức: Tiền mặt";
+            warning.textContent =
+                "Lưu ý: Khi xác nhận, hệ thống sẽ ghi nhận khoản tiền này đã được thu.";
+
+            icon.className = "bi bi-cash-stack";
+            submitButton.textContent = "Xác nhận đã thu tiền";
+            submitButton.style.background = "#198754";
+        }
+
+        modal.classList.add("show");
+        document.body.style.overflow = "hidden";
+    }
+
+    function dongXacNhan() {
+        document.getElementById("paymentModal").classList.remove("show");
+        document.body.style.overflow = "";
+    }
+
+    function dongXacNhanNeuClickNen(event) {
+        if (event.target.id === "paymentModal") {
+            dongXacNhan();
+        }
+    }
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            dongXacNhan();
+        }
+    });
+</script>
